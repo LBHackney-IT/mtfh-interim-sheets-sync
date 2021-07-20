@@ -168,8 +168,8 @@ workflows:
 #      - check-code-formatting
       - assume-role-development:
           context: api-assume-role-housing-development-context
-          requires:
-            - check-code-formatting
+#          requires:
+#            - check-code-formatting
 #          filters:
 #            branches:
 #              only: master
