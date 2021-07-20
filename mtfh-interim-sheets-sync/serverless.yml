@@ -23,8 +23,7 @@ functions:
     role: lambdaExecutionRole
     timeout: 900
     events:
-      # Invoke Lambda function every 2nd minute from Mon-Fri
-      - schedule: cron(0/2 * ? * MON-FRI *)
+      - schedule: cron(0 22 * * * *)
 
 resources:
   Resources:
