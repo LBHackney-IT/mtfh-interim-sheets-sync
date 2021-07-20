@@ -23,7 +23,7 @@ functions:
     role: lambdaExecutionRole
     timeout: 900
     events:
-      - schedule: cron(0 22 * * * *)
+      - schedule: cron(0 22 * * ? *)
 
 resources:
   Resources:
