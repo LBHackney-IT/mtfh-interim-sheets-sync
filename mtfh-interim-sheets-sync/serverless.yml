@@ -1,0 +1,104 @@
+service: mtfh-interim-sheets-sync
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.8
+  lambdaHashingVersion: 20201221
+  vpc: ${self:custom.vpc.${opt:stage}}
+  stage: ${opt:stage}
+  account: ${opt:account}
+  region: eu-west-2
+  usagePlan:
+    - secureAccess:
+        throttle:
+          burstLimit: 200
+          rateLimit: 100
+
+functions:
+  interimSheetsSyncHandler:
+    name: ${self:service}-${self:provider.stage}
+    handler: handler.run
+    role: lambdaExecutionRole
+    timeout: 900
+    events:
+      # Invoke Lambda function every 2nd minute from Mon-Fri
+      - schedule: cron(0/2 * ? * MON-FRI *)
+
+resources:
+  Resources:
+    lambdaExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        Path: /${self:service}/${self:provider.stage}/
+        RoleName: ${self:service}-lambdaExecutionRole
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+          - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        Policies:
+          - PolicyName: manageLogs
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:logs'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'log-group:/aws/lambda/*:*:*'
+                - Effect: "Allow"
+                  Action:
+                    - "s3:PutObject"
+                    - "s3:GetObject"
+                  Resource:
+                    Fn::Join:
+                      - ""
+                      - - "arn:aws:s3:::"
+                        - "Ref": "ServerlessDeploymentBucket"
+          - PolicyName: lambdaInvocation
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "lambda:InvokeFunction"
+                  Resource: "*"
+custom:
+  vpcId:
+    development: vpc-0d15f152935c8716f
+    staging: vpc-064521a7a4109ba31
+    production: vpc-0ce853ddb64e8fb3c
+  vpc:
+    development:
+      securityGroupIds:
+        - Ref: LambdaSecurityGroup
+      subnetIds:
+        - subnet-0140d06fb84fdb547
+        - subnet-05ce390ba88c42bfd
+    staging:
+      securityGroupIds:
+        - Ref: LambdaSecurityGroup
+      subnetIds:
+        - subnet-0743d86e9b362fa38
+        - subnet-0ea0020a44b98a2ca
+    production:
+      securityGroupIds:
+        - Ref: LambdaSecurityGroup
+      subnetIds:
+        - subnet-06a697d86a9b6ed01
+        - subnet-0beb266003a56ca82
