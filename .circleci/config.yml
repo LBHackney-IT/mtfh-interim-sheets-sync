@@ -114,15 +114,9 @@ workflows:
     jobs:
       - assume-role-production:
           context: api-assume-role-housing-production-context
-          filters:
-            branches:
-              only: release
       - deploy-to-production:
           requires:
             - assume-role-production
-          filters:
-            branches:
-              only: release
 #  check-and-deploy-development:
 #    jobs:
 ##      - check-code-formatting
