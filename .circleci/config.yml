@@ -114,8 +114,6 @@ workflows:
     jobs:
       - assume-role-production:
           context: api-assume-role-housing-production-context
-          requires:
-            - permit-production-release
           filters:
             branches:
               only: release
