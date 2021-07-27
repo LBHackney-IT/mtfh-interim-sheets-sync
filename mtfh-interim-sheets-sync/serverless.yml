@@ -7,7 +7,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: python3.8
+  runtime: python3.6
   lambdaHashingVersion: 20201221
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
@@ -87,9 +87,6 @@ resources:
                     - "lambda:InvokeFunction"
                   Resource: "*"
 custom:
-  pythonRequirements:
-    dockerizePip: non-linux
-    pythonBin: python3
   vpcId:
     development: vpc-0d15f152935c8716f
     staging: vpc-064521a7a4109ba31
