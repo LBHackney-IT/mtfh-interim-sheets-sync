@@ -112,43 +112,6 @@ jobs:
 workflows:
   check-and-deploy-development:
     jobs:
-#      - check-code-formatting
-      - assume-role-development:
-          context: api-assume-role-housing-development-context
-#          requires:
-#            - check-code-formatting
-#          filters:
-#            branches:
-#              only: master
-      - deploy-to-development:
-          requires:
-            - assume-role-development
-#          filters:
-#            branches:
-#              only: master
-  check-and-deploy-staging-and-production:
-      jobs:
-#      - check-code-formatting
-      - assume-role-staging:
-          context: api-assume-role-housing-staging-context
-#          requires:
-#            - check-code-formatting
-          filters:
-             branches:
-               only: release
-      - deploy-to-staging:
-          requires:
-            - assume-role-staging
-          filters:
-            branches:
-              only: release
-      - permit-production-release:
-          type: approval
-          requires:
-            - deploy-to-staging
-          filters:
-            branches:
-              only: release
       - assume-role-production:
           context: api-assume-role-housing-production-context
           requires:
@@ -162,3 +125,55 @@ workflows:
           filters:
             branches:
               only: release
+#  check-and-deploy-development:
+#    jobs:
+##      - check-code-formatting
+#      - assume-role-development:
+#          context: api-assume-role-housing-development-context
+##          requires:
+##            - check-code-formatting
+##          filters:
+##            branches:
+##              only: master
+#      - deploy-to-development:
+#          requires:
+#            - assume-role-development
+##          filters:
+##            branches:
+##              only: master
+#  check-and-deploy-staging-and-production:
+#      jobs:
+##      - check-code-formatting
+#      - assume-role-staging:
+#          context: api-assume-role-housing-staging-context
+##          requires:
+##            - check-code-formatting
+#          filters:
+#             branches:
+#               only: release
+#      - deploy-to-staging:
+#          requires:
+#            - assume-role-staging
+#          filters:
+#            branches:
+#              only: release
+#      - permit-production-release:
+#          type: approval
+#          requires:
+#            - deploy-to-staging
+#          filters:
+#            branches:
+#              only: release
+#      - assume-role-production:
+#          context: api-assume-role-housing-production-context
+#          requires:
+#            - permit-production-release
+#          filters:
+#            branches:
+#              only: release
+#      - deploy-to-production:
+#          requires:
+#            - assume-role-production
+#          filters:
+#            branches:
+#              only: release

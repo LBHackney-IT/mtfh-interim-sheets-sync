@@ -15,6 +15,12 @@ provider:
         throttle:
           burstLimit: 200
           rateLimit: 100
+  environment:
+    UH_DOMAIN: ${ssm:/housing-tl/production/uh_domain}
+    UH_SERVER: ${ssm:/housing-tl/production/uh_server}
+    UH_DATABASE: ${ssm:/housing-tl/production/uh_database}
+    UH_USERNAME: ${ssm:/housing-tl/production/uh_username}
+    UH_PASSWORD: ${ssm:/housing-tl/production/uh_password}
 
 functions:
   interimSheetsSyncHandler:

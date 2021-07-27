@@ -1,1 +1,3 @@
 pylint
+boto3
+pymssql
