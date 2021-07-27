@@ -59,6 +59,11 @@ commands:
           name: Install serverless CLI
           command: npm i -g serverless
       - run:
+          name: Install Serverless Python Requirements
+          command: |
+            cd ./mtfh-interim-sheets-sync/
+            sls plugin install -n serverless-python-requirements
+      - run:
           name: Deploy lambda
           command: |
             cd ./mtfh-interim-sheets-sync/
