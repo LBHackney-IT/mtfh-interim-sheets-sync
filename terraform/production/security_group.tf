@@ -5,7 +5,7 @@ data "aws_vpc" "production_vpc" {
 }
 
 resource "aws_security_group" "mtfh_interim_sheets_sync_lambda" {
-  name        = "mtfh_interim_sheets_sync_lambda"
+  name        = "mtfh-interim-sheets-sync-lambda-sg"
   description = "SG used to allow Lambda to access UH database."
   vpc_id      = data.aws_vpc.production_vpc.id
 
@@ -18,7 +18,7 @@ resource "aws_security_group" "mtfh_interim_sheets_sync_lambda" {
   }
 
   tags = {
-    Name              = "mtfh-interim-sheets-sync-lambda-${var.environment_name}"
+    Name              = "mtfh-interim-sheets-sync-lambda-sg-${var.environment_name}"
     Environment       = var.environment_name
     terraform-managed = true
     project_name      = var.project_name
@@ -27,7 +27,7 @@ resource "aws_security_group" "mtfh_interim_sheets_sync_lambda" {
 }
 
 resource "aws_ssm_parameter" "mtfh-interim-sheets-sync-lambda" {
-  name = "/housing-tl/production/sg-mtfh-interim-sheets-sync-lambda-id"
+  name = "/housing-tl/production/mtfh-interim-sheets-sync-lambda-sg-id"
   type = "String"
   value = aws_security_group.mtfh_interim_sheets_sync_lambda.id
 }
