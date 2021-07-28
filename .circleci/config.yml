@@ -7,7 +7,7 @@ orbs:
 executors:
   docker-python:
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.8.11-node
   docker-terraform:
     docker:
       - image: "hashicorp/terraform:light"
@@ -51,11 +51,6 @@ commands:
       - checkout
       - setup_remote_docker
       - run:
-          name: Install Node.js
-          command: |
-            curl -sL https://deb.nodesource.com/setup_13.x | bash -
-            apt-get update && apt-get install -y nodejs
-      - run:
           name: Install serverless CLI
           command: npm i -g serverless
       - run:
@@ -96,19 +91,19 @@ jobs:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_PRODUCTION
   deploy-to-development:
-    executor: docker-dotnet
+    executor: docker-python
     steps:
       - deploy-lambda:
           stage: "development"
           aws-account: $AWS_ACCOUNT_DEVELOPMENT
   deploy-to-staging:
-    executor: docker-dotnet
+    executor: docker-python
     steps:
       - deploy-lambda:
           stage: "staging"
           aws-account: $AWS_ACCOUNT_STAGING
   deploy-to-production:
-    executor: docker-dotnet
+    executor: docker-python
     steps:
       - deploy-lambda:
           stage: "production"
