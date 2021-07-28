@@ -52,7 +52,7 @@ commands:
       - setup_remote_docker
       - run:
           name: Install serverless CLI
-          command: npm i -g serverless
+          command: npm install --prefix=$HOME/.local --global serverless
       - run:
           name: Install Serverless Python Requirements
           command: |
