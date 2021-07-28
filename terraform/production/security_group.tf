@@ -1,7 +1,13 @@
-resource "aws_security_group" "allow_tls" {
+data "aws_vpc" "production_vpc" {
+  tags = {
+    Name = "vpc-housing-production"
+  }
+}
+
+resource "aws_security_group" "mtfh_interim_sheets_sync_lambda" {
   name        = "mtfh_interim_sheets_sync_lambda"
   description = "SG used to allow Lambda to access UH database."
-  vpc_id      = "vpc-0ce853ddb64e8fb3c"
+  vpc_id      = data.aws_vpc.production_vpc.id
 
   egress {
     from_port        = 0
@@ -18,4 +24,10 @@ resource "aws_security_group" "allow_tls" {
     project_name      = var.project_name
     backup_policy     = "Prod"
   }
+}
+
+resource "aws_ssm_parameter" "mtfh-interim-sheets-sync-lambda" {
+  name = "/housing-tl/production/sg-mtfh-interim-sheets-sync-lambda-id"
+  type = "String"
+  value = aws_security_group.mtfh_interim_sheets_sync_lambda.id
 }

@@ -11,6 +11,7 @@ provider:
   lambdaHashingVersion: 20201221
   vpc:
     subnetIds: ${self:custom.vpc.${opt:stage}.subnetIds}
+    securityGroupIds: ${ssm:/housing-tl/production/sg-mtfh-interim-sheets-sync-lambda-id}
   stage: ${opt:stage}
   account: ${opt:account}
   region: eu-west-2
