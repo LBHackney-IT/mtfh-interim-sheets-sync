@@ -32,5 +32,5 @@ def run(event, context):
 
     payment_ref = read_db(__SERVER, __USERNAME, __PASSWORD, __DATABASE,
                           open(__TENURES_QUERY_FILE, 'r').read())
-    logger.info("Asset: " + assets[0])
-    logger.info("Payment ref: " + payment_ref[0])
+    logger.info("Asset: " + str(assets[0]))
+    logger.info("Payment ref: " + str(payment_ref[0]))
