@@ -8,6 +8,9 @@ executors:
   docker-python:
     docker:
       - image: cimg/python:3.8.11-node
+  docker-terraform:
+    docker:
+      - image: "hashicorp/terraform:light"
 
 references:
   workspace_root: &workspace_root "~"
@@ -31,6 +34,25 @@ commands:
           root: *workspace_root
           paths:
             - .aws
+  terraform-init-then-apply:
+    description: "Initializes and applies terraform configuration"
+    parameters:
+      environment:
+        type: string
+    steps:
+      - *attach_workspace
+      - checkout
+      - run:
+          command: |
+            cd ./terraform/<<parameters.environment>>/
+            terraform get -update=true
+            terraform init
+          name: get and init
+      - run:
+          name: apply
+          command: |
+            cd ./terraform/<<parameters.environment>>/
+            terraform apply -auto-approve
   deploy-lambda:
     description: "Deploys API via Serverless"
     parameters:
@@ -84,6 +106,11 @@ jobs:
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_PRODUCTION
+  terraform-init-and-apply-to-production:
+    executor: docker-terraform
+    steps:
+      - terraform-init-then-apply:
+          environment: "production"
   deploy-to-development:
     executor: docker-python
     steps:
@@ -108,9 +135,12 @@ workflows:
     jobs:
       - assume-role-production:
           context: api-assume-role-housing-production-context
-      - deploy-to-production:
+      - terraform-init-and-apply-to-production:
           requires:
             - assume-role-production
+      - deploy-to-production:
+          requires:
+            - terraform-init-and-apply-to-production
 #  check-and-deploy-development:
 #    jobs:
 ##      - check-code-formatting

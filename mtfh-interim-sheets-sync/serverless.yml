@@ -9,7 +9,8 @@ provider:
   name: aws
   runtime: python3.8
   lambdaHashingVersion: 20201221
-  vpc: ${self:custom.vpc.${opt:stage}}
+  vpc:
+    subnetIds: ${self:custom.vpc.${opt:stage}.subnetIds}
   stage: ${opt:stage}
   account: ${opt:account}
   region: eu-west-2
