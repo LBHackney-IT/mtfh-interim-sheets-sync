@@ -1,6 +1,6 @@
 resource "aws_security_group" "allow_tls" {
-  name        = "allow_tls"
-  description = "Allow TLS inbound traffic"
+  name        = "mtfh_interim_sheets_sync_lambda"
+  description = "SG used to allow Lambda to access UH database."
   vpc_id      = "vpc-0ce853ddb64e8fb3c"
 
   egress {
@@ -12,7 +12,7 @@ resource "aws_security_group" "allow_tls" {
   }
 
   tags = {
-    Name              = "tenure-information-api-${var.environment_name}"
+    Name              = "mtfh-interim-sheets-sync-lambda-${var.environment_name}"
     Environment       = var.environment_name
     terraform-managed = true
     project_name      = var.project_name
