@@ -46,7 +46,7 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
 
             if transformed_tenure != {}:
                 result_tenure = query_dynamodb_by_id('id', [transformed_tenure['id']],
-                                                     __DYNAMODB_PERSONS_ENTITY)
+                                                     __DYNAMODB_TENURE_ENTITY)
                 if len(result_tenure) == 0:
                     print("tenure does not exist")
                     for person in transformed_people:
