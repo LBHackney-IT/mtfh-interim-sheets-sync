@@ -26,6 +26,9 @@ provider:
     UH_DATABASE: ${ssm:/housing-tl/production/uh_database}
     UH_USERNAME: ${ssm:/housing-tl/production/uh_username}
     UH_PASSWORD: ${ssm:/housing-tl/production/uh_password}
+    TENANCIES_SPREADSHEET_ID: ${ssm:/housing-tl/production/interim_spreadsheets_tenancies_sheet_id}
+    LEASEHOLDS_SPREADSHEET_ID: ${ssm:/housing-tl/production/interim_spreadsheets_leaseholds_sheet_id}
+    GOOGLE_APPLICATION_CREDENTIALS_JSON: ${ssm:/housing-tl/production/google_application_credentials_json}
 
 functions:
   interimSheetsSyncHandler:
