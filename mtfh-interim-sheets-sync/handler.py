@@ -44,36 +44,37 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
         if tenure['UH Ref'].strip() in ('', 'New Assignment', 'New Build', 'New RTB'):
             transformed_people, transformed_phones, transformed_tenure = transform_tenure(tenure, assets)
 
-            result_tenure = query_dynamodb_by_id('id', [transformed_tenure['id']],
-                                                 __DYNAMODB_PERSONS_ENTITY)
-            if len(result_tenure) == 0:
-                print("tenure does not exist")
-                for person in transformed_people:
-                    result_person = query_dynamodb_by_id('id', [person['id']],
-                                                         __DYNAMODB_PERSONS_ENTITY)
-                    if len(result_person) > 0:
-                        merged_person = merge_person_dynamodb_interim(result_person[0], person)
-                        # load_dict_to_dynamodb(merged_person, __DYNAMODB_PERSONS_ENTITY)
-                        print("person found")
-                    else:
-                        print("person not found")
-                        # load_dict_to_dynamodb(person, __DYNAMODB_PERSONS_ENTITY)
-                    person_activity = person_migrated_activity(person)
-                    # load_dict_to_dynamodb(person_activity, __DYNAMODB_ACTIVITY_ENTITY)
-                print("creating tenure")
-                if transformed_tenure != {}:
-                    print("creating tenure 2")
-                    # load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
+            if transformed_tenure != {}:
+                result_tenure = query_dynamodb_by_id('id', [transformed_tenure['id']],
+                                                     __DYNAMODB_PERSONS_ENTITY)
+                if len(result_tenure) == 0:
+                    print("tenure does not exist")
+                    for person in transformed_people:
+                        result_person = query_dynamodb_by_id('id', [person['id']],
+                                                             __DYNAMODB_PERSONS_ENTITY)
+                        if len(result_person) > 0:
+                            merged_person = merge_person_dynamodb_interim(result_person[0], person)
+                            # load_dict_to_dynamodb(merged_person, __DYNAMODB_PERSONS_ENTITY)
+                            print("person found")
+                        else:
+                            print("person not found")
+                            # load_dict_to_dynamodb(person, __DYNAMODB_PERSONS_ENTITY)
+                        person_activity = person_migrated_activity(person)
+                        # load_dict_to_dynamodb(person_activity, __DYNAMODB_ACTIVITY_ENTITY)
+                    print("creating tenure")
+                    if transformed_tenure != {}:
+                        print("creating tenure 2")
+                        # load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
 
-                for phone in transformed_phones:
-                    result_person = query_dynamodb_by_id('id', [phone['targetId']],
-                                                         __DYNAMODB_PERSONS_ENTITY)
-                    if len(result_person) > 0:
-                        # load_dict_to_dynamodb(phone, __DYNAMICS_CONTACTS_ENTITY)
-                        phone_activity = contact_details_migrated_activity(phone)
-                        # load_dict_to_dynamodb(phone_activity, __DYNAMODB_ACTIVITY_ENTITY)
-                    else:
-                        print("phone: person not found: " + phone['targetId'])
+                    for phone in transformed_phones:
+                        result_person = query_dynamodb_by_id('id', [phone['targetId']],
+                                                             __DYNAMODB_PERSONS_ENTITY)
+                        if len(result_person) > 0:
+                            # load_dict_to_dynamodb(phone, __DYNAMICS_CONTACTS_ENTITY)
+                            phone_activity = contact_details_migrated_activity(phone)
+                            # load_dict_to_dynamodb(phone_activity, __DYNAMODB_ACTIVITY_ENTITY)
+                        else:
+                            print("phone: person not found: " + phone['targetId'])
 
 
 def update_household_members_tenure_end_date(household_members: [Dict], tenure_id: str,
