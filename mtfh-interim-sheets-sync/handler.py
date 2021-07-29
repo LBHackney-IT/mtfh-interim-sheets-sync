@@ -2,11 +2,9 @@ import re
 from typing import Dict
 import logging
 import os
-import uuid
-import hashlib
 
 from utils.data_load_utils import read_db
-from utils.cleansing_utils import format_date, create_hashed_id
+from utils.transform_interim_sheets import format_date, create_hashed_id
 from utils.transform_interim_sheets import transform_tenure, merge_person_dynamodb_interim
 from utils.dynamodb_utils import query_dynamodb_by_id, load_dict_to_dynamodb
 from utils.google_sheets_utils import read_google_sheets
