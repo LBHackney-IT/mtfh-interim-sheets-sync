@@ -6,29 +6,6 @@ import uuid
 import hashlib
 
 
-def print_progress_bar(iteration: int, total: int, prefix: str = '', suffix: str = '',
-                       length: int = 100):
-    """
-    A function that prints a progress bar.
-    :param iteration: The iteration of the process out of the total number of iterations.
-    :param total: The total number of iterations in the process.
-    :param prefix: A text to show at the start of the progress bar line.
-    :param suffix: A text to show at the end of the progress bar line.
-    :param length: Length of the progress bar.
-    :return:
-    """
-    fill = '█'
-    print_end = "\r"
-    decimals = 1
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filled_length = int(length * iteration // total)
-    progress_bar = fill * filled_length + '-' * (length - filled_length)
-    print(f'\r{prefix} |{progress_bar}| {percent}% {suffix}', end=print_end)
-    # Print New Line on Complete
-    if iteration == total:
-        print()
-
-
 def create_hashed_id(value: str) -> str:
     """
     Create the UUID MD5 hashed ID from a string, which is used in all the migration to keep the link
