@@ -53,24 +53,25 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                                                          __DYNAMODB_PERSONS_ENTITY)
                     if len(result_person) > 0:
                         merged_person = merge_person_dynamodb_interim(result_person[0], person)
-                        load_dict_to_dynamodb(merged_person, __DYNAMODB_PERSONS_ENTITY)
+                        # load_dict_to_dynamodb(merged_person, __DYNAMODB_PERSONS_ENTITY)
                         print("person found")
                     else:
                         print("person not found")
-                        load_dict_to_dynamodb(person, __DYNAMODB_PERSONS_ENTITY)
+                        # load_dict_to_dynamodb(person, __DYNAMODB_PERSONS_ENTITY)
                     person_activity = person_migrated_activity(person)
-                    load_dict_to_dynamodb(person_activity, __DYNAMODB_ACTIVITY_ENTITY)
+                    # load_dict_to_dynamodb(person_activity, __DYNAMODB_ACTIVITY_ENTITY)
                 print("creating tenure")
                 if transformed_tenure != {}:
-                    load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
+                    print("creating tenure 2")
+                    # load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
 
                 for phone in transformed_phones:
                     result_person = query_dynamodb_by_id('id', [phone['targetId']],
                                                          __DYNAMODB_PERSONS_ENTITY)
                     if len(result_person) > 0:
-                        load_dict_to_dynamodb(phone, __DYNAMICS_CONTACTS_ENTITY)
+                        # load_dict_to_dynamodb(phone, __DYNAMICS_CONTACTS_ENTITY)
                         phone_activity = contact_details_migrated_activity(phone)
-                        load_dict_to_dynamodb(phone_activity, __DYNAMODB_ACTIVITY_ENTITY)
+                        # load_dict_to_dynamodb(phone_activity, __DYNAMODB_ACTIVITY_ENTITY)
                     else:
                         print("phone: person not found: " + phone['targetId'])
 
@@ -92,7 +93,7 @@ def update_household_members_tenure_end_date(household_members: [Dict], tenure_i
             for person_tenure in result_person[0]['tenures']:
                 if person_tenure['id'] == tenure_id:
                     person_tenure['endDate'] = format_date(end_date)
-            load_dict_to_dynamodb(result_person[0], __DYNAMODB_PERSONS_ENTITY)
+            # load_dict_to_dynamodb(result_person[0], __DYNAMODB_PERSONS_ENTITY)
 
 
 def update_former_tenure_end_date(former_tenures: [Dict]):
@@ -111,7 +112,7 @@ def update_former_tenure_end_date(former_tenures: [Dict]):
         if len(result_tenure) > 0 and not re.search('[a-zA-Z]', tenure['Void Date']):
             print("tenure end date changed")
             result_tenure[0]['endOfTenureDate'] = format_date(tenure['Void Date'])
-            load_dict_to_dynamodb(result_tenure[0], __DYNAMODB_TENURE_ENTITY)
+            # load_dict_to_dynamodb(result_tenure[0], __DYNAMODB_TENURE_ENTITY)
             update_household_members_tenure_end_date(result_tenure[0]['householdMembers'],
                                                      tenure_id, tenure['Void Date'])
 
