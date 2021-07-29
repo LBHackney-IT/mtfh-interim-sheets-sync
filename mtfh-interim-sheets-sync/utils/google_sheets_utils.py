@@ -20,7 +20,7 @@ def read_google_sheets(spreadsheet_id: str, range_name: str) -> [Dict]:
     :param range_name: The tab name and range to extract data from.
     :return: List of dicts of the data read from the google sheets document.
     """
-    service_account_info = json.load(SERVICE_ACCOUNT)
+    service_account_info = json.loads(SERVICE_ACCOUNT)
     credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
 
     service_client = build('sheets', 'v4', credentials=credentials)
