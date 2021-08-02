@@ -53,8 +53,63 @@ def contact_details_migrated_activity(contact_details: Dict) -> Dict:
             "value": contact_details['contactInformation']['value']
         },
         "authorDetails": {
-            'id': '11111111-1111-1111-1111-111111111111',
-            'fullName': 'Admin',
-            'emailAddress': 'mtfh.admin@hackney.gov.uk'
+            'fullName': 'Import',
+            'emailAddress': ''
         }
     }
+
+
+def tenure_migrated_activity(tenure: Dict) -> Dict:
+    """
+    Creating an activity history event for migrated tenures.
+
+    :param tenure: Transformed tenure object.
+    :return: Activity History event object.
+    """
+    return {
+        "id": str(uuid.UUID(hashlib.md5(("migrate" + "tenure" + tenure['id']).strip().encode())
+                            .hexdigest())),
+        "type": "migrate",
+        "targetType": "tenure",
+        "targetId": tenure['id'],
+        "createdAt": datetime.now().isoformat(timespec="seconds"),
+        "timeToLiveForRecord": 0,
+        "oldData": None,
+        "newData": None,
+        "authorDetails": {
+            'fullName': 'Import',
+            'emailAddress': ''
+        }
+    }
+
+
+def tenure_people_migrated_activity(tenure: Dict) -> [Dict]:
+    """
+    Creating a list of activity history events for migrated tenure people.
+
+    :param tenure: Transformed tenure object.
+    :return: List of Activity History events.
+    """
+    list_of_tenure_persons_activities = []
+    for person in tenure['householdMembers']:
+        list_of_tenure_persons_activities.append(
+            {
+                "id": str(uuid.UUID(hashlib.md5(("migrate" + "tenure" + tenure['id'] +
+                                                 person['id']).strip().encode()).hexdigest())),
+                "type": "migrate",
+                "targetType": "tenure",
+                "targetId": tenure['id'],
+                "createdAt": datetime.now().isoformat(timespec="seconds"),
+                "timeToLiveForRecord": 0,
+                "oldData": None,
+                "newData": {
+                    "fullName": person['fullName'],
+                    "personTenureType": person['personTenureType'],
+                    "dateOfBirth": person['dateOfBirth']
+                },
+                "authorDetails": {
+                    "fullName": "Admin",
+                    "emailAddress": "mtfh.admin@hackney.gov.uk"
+                }
+            })
+    return list_of_tenure_persons_activities

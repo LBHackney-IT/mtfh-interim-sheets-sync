@@ -227,9 +227,8 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
                         'isActive': True,
                         'createdBy': {
                             'createdAt': str(datetime.now().isoformat()),
-                            'id': '11111111-1111-1111-1111-111111111111',
-                            'fullName': 'Admin',
-                            'emailAddress': 'mtfh.admin@hackney.gov.uk'
+                            'fullName': 'Import',
+                            'emailAddress': ''
                         }
                     })
     transformed_tenure = {} if len(transformed_people_for_tenure) == 0 else {
@@ -248,7 +247,7 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
         },
         'charges': None,
         'startOfTenureDate': format_date(tenure['Tenancy Start Date']),
-        'endOfTenureDate': "1900-01-01",
+        'endOfTenureDate': None,
         'tenureType': {
             'code': tenure_type_name_to_code[tenure['Tenancy Type'].strip()],
             'description': tenure['Tenancy Type'].strip()

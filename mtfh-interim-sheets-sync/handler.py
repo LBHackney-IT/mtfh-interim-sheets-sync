@@ -8,7 +8,8 @@ from utils.transform_interim_sheets import format_date, create_hashed_id
 from utils.transform_interim_sheets import transform_tenure, merge_person_dynamodb_interim
 from utils.dynamodb_utils import query_dynamodb_by_id, load_dict_to_dynamodb
 from utils.google_sheets_utils import read_google_sheets
-from utils.transform_activity import person_migrated_activity, contact_details_migrated_activity
+from utils.transform_activity import person_migrated_activity, contact_details_migrated_activity, \
+                                     tenure_migrated_activity, tenure_people_migrated_activity
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -23,7 +24,6 @@ __TENANCIES_SPREADSHEET_ID = os.getenv("TENANCIES_SPREADSHEET_ID")
 __LEASEHOLDS_SPREADSHEET_ID = os.getenv("LEASEHOLDS_SPREADSHEET_ID")
 
 __ASSETS_QUERY_FILE = "queries/interim_process_assets.sql"
-__TENURES_QUERY_FILE = "queries/interim_process_tenures.sql"
 
 __DYNAMODB_PERSONS_ENTITY = "Persons"
 __DYNAMICS_CONTACTS_ENTITY = "ContactDetails"
@@ -54,25 +54,29 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                                                              __DYNAMODB_PERSONS_ENTITY)
                         if len(result_person) > 0:
                             merged_person = merge_person_dynamodb_interim(result_person[0], person)
-                            # load_dict_to_dynamodb(merged_person, __DYNAMODB_PERSONS_ENTITY)
+                            load_dict_to_dynamodb(merged_person, __DYNAMODB_PERSONS_ENTITY)
                             print("person found")
                         else:
                             print("person not found")
-                            # load_dict_to_dynamodb(person, __DYNAMODB_PERSONS_ENTITY)
+                            load_dict_to_dynamodb(person, __DYNAMODB_PERSONS_ENTITY)
                         person_activity = person_migrated_activity(person)
-                        # load_dict_to_dynamodb(person_activity, __DYNAMODB_ACTIVITY_ENTITY)
+                        load_dict_to_dynamodb(person_activity, __DYNAMODB_ACTIVITY_ENTITY)
                     print("creating tenure")
                     if transformed_tenure != {}:
-                        print("creating tenure 2")
-                        # load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
+                        load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
+                        tenure_activity = tenure_migrated_activity(transformed_tenure)
+                        load_dict_to_dynamodb(tenure_activity, __DYNAMODB_ACTIVITY_ENTITY)
+                        tenure_people_activity = tenure_people_migrated_activity(transformed_tenure)
+                        for tenure_person_activity in tenure_people_activity:
+                            load_dict_to_dynamodb(tenure_person_activity, __DYNAMODB_ACTIVITY_ENTITY)
 
                     for phone in transformed_phones:
                         result_person = query_dynamodb_by_id('id', [phone['targetId']],
                                                              __DYNAMODB_PERSONS_ENTITY)
                         if len(result_person) > 0:
-                            # load_dict_to_dynamodb(phone, __DYNAMICS_CONTACTS_ENTITY)
+                            load_dict_to_dynamodb(phone, __DYNAMICS_CONTACTS_ENTITY)
                             phone_activity = contact_details_migrated_activity(phone)
-                            # load_dict_to_dynamodb(phone_activity, __DYNAMODB_ACTIVITY_ENTITY)
+                            load_dict_to_dynamodb(phone_activity, __DYNAMODB_ACTIVITY_ENTITY)
                         else:
                             print("phone: person not found: " + phone['targetId'])
 
@@ -94,7 +98,7 @@ def update_household_members_tenure_end_date(household_members: [Dict], tenure_i
             for person_tenure in result_person[0]['tenures']:
                 if person_tenure['id'] == tenure_id:
                     person_tenure['endDate'] = format_date(end_date)
-            # load_dict_to_dynamodb(result_person[0], __DYNAMODB_PERSONS_ENTITY)
+            load_dict_to_dynamodb(result_person[0], __DYNAMODB_PERSONS_ENTITY)
 
 
 def update_former_tenure_end_date(former_tenures: [Dict]):
@@ -113,7 +117,7 @@ def update_former_tenure_end_date(former_tenures: [Dict]):
         if len(result_tenure) > 0 and not re.search('[a-zA-Z]', tenure['Void Date']):
             print("tenure end date changed")
             result_tenure[0]['endOfTenureDate'] = format_date(tenure['Void Date'])
-            # load_dict_to_dynamodb(result_tenure[0], __DYNAMODB_TENURE_ENTITY)
+            load_dict_to_dynamodb(result_tenure[0], __DYNAMODB_TENURE_ENTITY)
             update_household_members_tenure_end_date(result_tenure[0]['householdMembers'],
                                                      tenure_id, tenure['Void Date'])
 
@@ -129,17 +133,17 @@ def run(event, context):
                      open(__ASSETS_QUERY_FILE, 'r').read())
 
     logger.info("spreadsheet tenancies 2021/04 upto now")
-    all_tenancies_range_name = 'Weekly Payments!A1:BY20567'
+    all_tenancies_range_name = 'Weekly Payments!A1:BY22000'
     all_tenancies = read_google_sheets(__TENANCIES_SPREADSHEET_ID, all_tenancies_range_name)
     process_interim_data(all_tenancies, assets)
 
     logger.info("Former tenancies 2021/04 upto now")
-    former_tenancies_range_name = 'Former Tenants!A1:BU202'
+    former_tenancies_range_name = 'Former Tenants!A1:BU1000'
     former_tenancies = read_google_sheets(__TENANCIES_SPREADSHEET_ID, former_tenancies_range_name)
     update_former_tenure_end_date(former_tenancies)
 
     logger.info("spreadsheet new leaseholds")
-    all_leaseholds_range_name = 'New Assignment / RTB!A1:P139'
+    all_leaseholds_range_name = 'New Assignment / RTB!A1:P1000'
     all_leaseholds = read_google_sheets(__LEASEHOLDS_SPREADSHEET_ID, all_leaseholds_range_name)
     for leasehold in all_leaseholds:
         leasehold['Date of Birth'] = ''
@@ -152,7 +156,7 @@ def run(event, context):
     process_interim_data(all_leaseholds, assets)
 
     logger.info("spreadsheet new builds")
-    all_leaseholds_range_name = 'New Build!A1:Q26'
+    all_leaseholds_range_name = 'New Build!A1:Q1000'
     all_leaseholds = read_google_sheets(__LEASEHOLDS_SPREADSHEET_ID, all_leaseholds_range_name)
     for leasehold in all_leaseholds:
         leasehold['Date of Birth'] = ''
