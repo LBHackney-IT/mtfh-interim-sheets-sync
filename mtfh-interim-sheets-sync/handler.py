@@ -1,3 +1,6 @@
+"""
+Main entry point of the lambda function.
+"""
 import re
 from typing import Dict
 import logging
@@ -42,7 +45,8 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
     for tenure in all_tenures:
         print("processing tenure: " + tenure['Payment Ref'].strip())
         if tenure['UH Ref'].strip() in ('', 'New Assignment', 'New Build', 'New RTB'):
-            transformed_people, transformed_phones, transformed_tenure = transform_tenure(tenure, assets)
+            transformed_people, transformed_phones, transformed_tenure = transform_tenure(tenure,
+                                                                                          assets)
 
             if transformed_tenure != {}:
                 result_tenure = query_dynamodb_by_id('id', [transformed_tenure['id']],
@@ -53,22 +57,23 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                         result_person = query_dynamodb_by_id('id', [person['id']],
                                                              __DYNAMODB_PERSONS_ENTITY)
                         if len(result_person) > 0:
-                            merged_person = merge_person_dynamodb_interim(result_person[0], person)
-                            load_dict_to_dynamodb(merged_person, __DYNAMODB_PERSONS_ENTITY)
+                            load_dict_to_dynamodb(merge_person_dynamodb_interim(
+                                result_person[0], person), __DYNAMODB_PERSONS_ENTITY)
                             print("person found")
                         else:
                             print("person not found")
                             load_dict_to_dynamodb(person, __DYNAMODB_PERSONS_ENTITY)
-                        person_activity = person_migrated_activity(person)
-                        load_dict_to_dynamodb(person_activity, __DYNAMODB_ACTIVITY_ENTITY)
+                        load_dict_to_dynamodb(person_migrated_activity(person),
+                                              __DYNAMODB_ACTIVITY_ENTITY)
                     print("creating tenure")
                     if transformed_tenure != {}:
                         load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
-                        tenure_activity = tenure_migrated_activity(transformed_tenure)
-                        load_dict_to_dynamodb(tenure_activity, __DYNAMODB_ACTIVITY_ENTITY)
-                        tenure_people_activity = tenure_people_migrated_activity(transformed_tenure)
-                        for tenure_person_activity in tenure_people_activity:
-                            load_dict_to_dynamodb(tenure_person_activity, __DYNAMODB_ACTIVITY_ENTITY)
+                        load_dict_to_dynamodb(tenure_migrated_activity(transformed_tenure),
+                                              __DYNAMODB_ACTIVITY_ENTITY)
+                        for tenure_person_activity in tenure_people_migrated_activity(
+                                transformed_tenure):
+                            load_dict_to_dynamodb(tenure_person_activity,
+                                                  __DYNAMODB_ACTIVITY_ENTITY)
 
                     for phone in transformed_phones:
                         result_person = query_dynamodb_by_id('id', [phone['targetId']],

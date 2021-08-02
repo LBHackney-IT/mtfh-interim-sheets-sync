@@ -148,7 +148,8 @@ def get_list_of_tenants(tenants: str) -> []:
 
 def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
     """
-    Transform a new tenure from the interim google sheet into the target tenure, person and phone models.
+    Transform a new tenure from the interim google sheet into the target tenure,
+    person and phone models.
 
     :param tenure: The new tenure record from the interim google sheet.
     :param assets: List of assets from UH.
