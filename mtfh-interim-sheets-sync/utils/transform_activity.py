@@ -109,7 +109,7 @@ def tenure_people_migrated_activity(tenure: Dict) -> [Dict]:
                 },
                 "authorDetails": {
                     "fullName": "Import",
-                    "emailAddress": "mtfh.admin@hackney.gov.uk"
+                    "emailAddress": ""
                 }
             })
     return list_of_tenure_persons_activities
