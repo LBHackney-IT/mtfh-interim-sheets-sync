@@ -108,7 +108,7 @@ def tenure_people_migrated_activity(tenure: Dict) -> [Dict]:
                     "dateOfBirth": person['dateOfBirth']
                 },
                 "authorDetails": {
-                    "fullName": "Admin",
+                    "fullName": "Import",
                     "emailAddress": "mtfh.admin@hackney.gov.uk"
                 }
             })
