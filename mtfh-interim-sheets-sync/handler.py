@@ -175,10 +175,10 @@ def run(event, context):
     process_interim_data(all_leaseholds, assets)
 
     lambda_client = boto3.client('lambda')
-    lambda_payload = {
+    lambda_payload = """{
         "dynamoTable": "Persons",
         "indexNodeHost": "https://vpc-housing-search-api-es-cggwz5gia7iqw6kxw64ytgrmr4.eu-west-2.es.amazonaws.com",
         "indexName": "persons"
-    }
+    }"""
     lambda_client.invoke(FunctionName='mtfh-dynamodb-elasticsearch-indexing-production', InvocationType='Event',
                          Payload=lambda_payload)
