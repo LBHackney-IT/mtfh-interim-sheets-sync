@@ -33,6 +33,17 @@ def create_hashed_id(value: str) -> str:
     return str(uuid.UUID(hashlib.md5(value.strip().encode()).hexdigest()))
 
 
+def create_hashed_id_without_strip(value: str) -> str:
+    """
+    Create the UUID MD5 hashed ID from a string without removing whitespaces,
+    which is used in all the migration to keep the link between the different entities.
+
+    :param value: String to hash.
+    :return: MD5 hashed UUID.
+    """
+    return str(uuid.UUID(hashlib.md5(value.encode()).hexdigest()))
+
+
 def name_starts_with_title(name: str) -> bool:
     """
     Check if the input string starts with a title or not.
@@ -105,13 +116,13 @@ def get_asset_details(assets: [Dict], property_ref: str) -> Dict:
     :param property_ref: The asset ID from tenure.
     :return: Dict of asset ID, asset UPRN, asset reference, asset address and asset type.
     """
-    tenure_asset = [asset for asset in assets if asset['prop_ref'] == property_ref]
+    tenure_asset = [asset for asset in assets if asset['prop_ref'].strip() == property_ref.strip()]
     if len(tenure_asset) > 0 and tenure_asset[0]['prop_ref'] != '' \
             and tenure_asset[0]['prop_ref'] is not None:
         asset_full_address = tenure_asset[0]['property_full_address'].strip()
         uprn = tenure_asset[0]['property_llpg_ref'].strip()
-        asset_id = create_hashed_id(tenure_asset[0]['prop_ref'])
-        property_ref = tenure_asset[0]['prop_ref']
+        asset_id = create_hashed_id_without_strip(tenure_asset[0]['prop_ref'])
+        property_ref = tenure_asset[0]['prop_ref'].strip()
         asset_type = tenure_asset[0]['asset_type']
     else:
         asset_full_address = ''
