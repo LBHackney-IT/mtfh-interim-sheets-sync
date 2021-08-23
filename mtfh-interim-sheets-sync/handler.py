@@ -213,6 +213,7 @@ def run(event, context):
     }"""
     lambda_client.invoke(FunctionName='mtfh-dynamodb-elasticsearch-indexing-production', InvocationType='Event',
                          Payload=person_lambda_payload)
+
     tenure_lambda_payload = """{
         "dynamoTable": "TenureInformation",
         "indexNodeHost": "https://vpc-housing-search-api-es-cggwz5gia7iqw6kxw64ytgrmr4.eu-west-2.es.amazonaws.com",
@@ -220,3 +221,11 @@ def run(event, context):
     }"""
     lambda_client.invoke(FunctionName='mtfh-dynamodb-elasticsearch-indexing-production', InvocationType='Event',
                          Payload=tenure_lambda_payload)
+
+    asset_lambda_payload = """{
+        "dynamoTable": "Assets",
+        "indexNodeHost": "https://vpc-housing-search-api-es-cggwz5gia7iqw6kxw64ytgrmr4.eu-west-2.es.amazonaws.com",
+        "indexName": "assets"
+    }"""
+    lambda_client.invoke(FunctionName='mtfh-dynamodb-elasticsearch-indexing-production', InvocationType='Event',
+                         Payload=asset_lambda_payload)
