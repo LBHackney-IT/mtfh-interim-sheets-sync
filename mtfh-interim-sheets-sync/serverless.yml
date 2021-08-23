@@ -28,6 +28,7 @@ provider:
     UH_PASSWORD: ${ssm:/housing-tl/production/uh_password}
     TENANCIES_SPREADSHEET_ID: ${ssm:/housing-tl/production/interim_spreadsheets_tenancies_sheet_id}
     LEASEHOLDS_SPREADSHEET_ID: ${ssm:/housing-tl/production/interim_spreadsheets_leaseholds_sheet_id}
+    ASSETS_SPREADSHEET_ID: ${ssm:/housing-tl/production/interim_spreadsheets_assets_sheet_id}
     GOOGLE_APPLICATION_CREDENTIALS_JSON: ${ssm:/housing-tl/production/google_application_credentials_json}
 
 functions:
@@ -132,6 +133,12 @@ resources:
                           - Ref: 'AWS::Region'
                           - Ref: 'AWS::AccountId'
                           - 'table/ActivityHistory'
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:dynamodb'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'table/Assets'
 custom:
   vpcId:
     development: vpc-0d15f152935c8716f
