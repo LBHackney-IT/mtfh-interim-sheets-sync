@@ -14,6 +14,7 @@ from utils.dynamodb_utils import query_dynamodb_by_id, load_dict_to_dynamodb
 from utils.google_sheets_utils import read_google_sheets
 from utils.transform_activity import person_migrated_activity, contact_details_migrated_activity, \
                                      tenure_migrated_activity, tenure_people_migrated_activity
+from utils.transform_interim_asset import transform_asset
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -26,6 +27,7 @@ __PASSWORD = os.getenv("UH_PASSWORD")
 
 __TENANCIES_SPREADSHEET_ID = os.getenv("TENANCIES_SPREADSHEET_ID")
 __LEASEHOLDS_SPREADSHEET_ID = os.getenv("LEASEHOLDS_SPREADSHEET_ID")
+__ASSETS_SPREADSHEET_ID = os.getenv("ASSETS_SPREADSHEET_ID")
 
 __ASSETS_QUERY_FILE = "queries/interim_process_assets.sql"
 
@@ -33,6 +35,7 @@ __DYNAMODB_PERSONS_ENTITY = "Persons"
 __DYNAMICS_CONTACTS_ENTITY = "ContactDetails"
 __DYNAMODB_TENURE_ENTITY = "TenureInformation"
 __DYNAMODB_ACTIVITY_ENTITY = "ActivityHistory"
+__DYNAMODB_ASSET_ENTITY = "Assets"
 
 
 def process_interim_data(all_tenures: [Dict], assets: [Dict]):
@@ -137,6 +140,31 @@ def run(event, context):
     """
     assets = read_db(__SERVER, __USERNAME, __PASSWORD, __DATABASE,
                      open(__ASSETS_QUERY_FILE, 'r').read())
+
+    logger.info("spreadsheet assets")
+    assets_range_name = 'New Build properties!A1:L300'
+    all_assets = read_google_sheets(__ASSETS_SPREADSHEET_ID, assets_range_name)
+    for asset in all_assets:
+        tenure_res = query_dynamodb_by_id('id', [create_hashed_id(asset['Payment Ref'])], __DYNAMODB_TENURE_ENTITY)
+        if len(tenure_res) > 0:
+            tenure = {
+                'id': tenure_res[0]['id'],
+                'paymentReference': tenure_res[0]['paymentReference'],
+                'type': tenure_res[0]['tenureType']['description'],
+                'startOfTenureDate': tenure_res[0]['startOfTenureDate'],
+                'endOfTenureDate': tenure_res[0]['endOfTenureDate']
+            }
+        else:
+            tenure = {}
+        transformed_asset = transform_asset(asset, tenure)
+        load_dict_to_dynamodb(transformed_asset, __DYNAMODB_ASSET_ENTITY)
+        assets.append({
+            'prop_ref': transformed_asset['assetId'],
+            'property_llpg_ref': "",
+            'property_full_address': transformed_asset['assetAddress']['addressLine1'] + ', ' +
+                                     transformed_asset['assetAddress']['postCode'],
+            'asset_type': transformed_asset['assetType']
+        })
 
     logger.info("spreadsheet tenancies 2021/04 upto now")
     all_tenancies_range_name = 'Weekly Payments!A1:BY22000'
