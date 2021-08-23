@@ -33,6 +33,6 @@ def transform_asset(interim_asset: Dict, asset_tenure: Dict) -> Dict:
         'assetManagement': None,
         'assetCharacteristics': None,
         'tenure': asset_tenure,
-        'rootAsset': "",
-        'parentAssetIds': ""
+        'rootAsset': "ROOT",
+        'parentAssetIds': "ROOT"
     }
