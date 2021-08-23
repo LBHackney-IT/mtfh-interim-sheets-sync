@@ -198,7 +198,10 @@ def run(event, context):
         leasehold['Mobile'] = ''
         leasehold['Property Ref'] = leasehold.pop('Property No')
         leasehold['Tenancy Type'] = leasehold.pop('Tenancy')
-        leasehold['Tenancy Start Date'] = leasehold.pop('Date of New Build')
+        if 'Date of New Build' in leasehold:
+            leasehold['Tenancy Start Date'] = leasehold.pop('Date of New Build')
+        else:
+            leasehold['Tenancy Start Date'] = ""
         leasehold['UH Ref'] = leasehold.pop('UH Rent Acct')
     process_interim_data(all_leaseholds, assets)
 
