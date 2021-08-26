@@ -206,7 +206,8 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
                     'uprn': asset_details['uprn'],
                     'propertyReference': asset_details['property_ref'],
                     'assetId': asset_details['asset_id']
-                }]
+                }],
+                'lastModified': str(datetime.now().isoformat())
             })
             transformed_people_for_tenure.append({
                 'id': create_hashed_id(surname.lower().strip() + firstname.lower().strip() + dob),
@@ -241,7 +242,8 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
                             'createdAt': str(datetime.now().isoformat()),
                             'fullName': 'Import',
                             'emailAddress': ''
-                        }
+                        },
+                        'lastModified': str(datetime.now().isoformat())
                     })
     transformed_tenure = {} if len(transformed_people_for_tenure) == 0 else {
         'id': create_hashed_id(tenure['Payment Ref']),
