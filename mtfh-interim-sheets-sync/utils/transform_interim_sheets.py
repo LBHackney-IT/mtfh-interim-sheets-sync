@@ -255,10 +255,6 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
             'uprn': asset_details['uprn'],
             'type': asset_details['asset_type']
         },
-        'accountType': {
-            'code': "",
-            'description': ""
-        },
         'charges': None,
         'startOfTenureDate': format_date(tenure['Tenancy Start Date']),
         'endOfTenureDate': None,
@@ -271,12 +267,6 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
             'reasonForTermination': ""
         },
         'successionDate': "1900-01-01",
-        'agreementType': {
-            'code': "M",
-            'description': "Master Account"
-        },
-        'subsidiaryAccountsReferences': [],
-        'masterAccountTenureReference': "",
         'evictionDate': "1900-01-01",
         'potentialEndDate': "1900-01-01",
         "notices": [
@@ -298,7 +288,6 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
                 'value': ""
             }
         ],
-        'rentCostCentre': "",
         'isMutualExchange': False,
         'informHousingBenefitsForChanges': False,
         'isSublet': False,
