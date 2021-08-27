@@ -147,7 +147,7 @@ def get_list_of_tenants(tenants: str) -> []:
     :return: An array of people.
     """
     final_list_of_people = []
-    for person in tenants.split(' & '):
+    for person in tenants.strip().split(' & '):
         if ' and ' in person:
             final_list_of_people += person.split(' and ')
         elif ',' in person:
