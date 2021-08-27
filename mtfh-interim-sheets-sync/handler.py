@@ -190,7 +190,7 @@ def run(event, context):
     process_interim_data(all_leaseholds, assets)
 
     logger.info("spreadsheet new builds")
-    all_leaseholds_range_name = 'New Build!A1:Q1000'
+    all_leaseholds_range_name = 'New Build!A1:Q33'
     all_leaseholds = read_google_sheets(__LEASEHOLDS_SPREADSHEET_ID, all_leaseholds_range_name)
     for leasehold in all_leaseholds:
         leasehold['Date of Birth'] = ''
@@ -204,6 +204,22 @@ def run(event, context):
             leasehold['Tenancy Start Date'] = ""
         leasehold['UH Ref'] = leasehold.pop('UH Rent Acct')
     process_interim_data(all_leaseholds, assets)
+
+    logger.info("reprocess spreadsheet new builds")
+    for asset in all_assets:
+        tenure_res = query_dynamodb_by_id('id', [create_hashed_id(asset['Payment Ref'])], __DYNAMODB_TENURE_ENTITY)
+        if len(tenure_res) > 0:
+            tenure = {
+                'id': tenure_res[0]['id'],
+                'paymentReference': tenure_res[0]['paymentReference'],
+                'type': tenure_res[0]['tenureType']['description'],
+                'startOfTenureDate': tenure_res[0]['startOfTenureDate'],
+                'endOfTenureDate': tenure_res[0]['endOfTenureDate']
+            }
+        else:
+            tenure = {}
+        transformed_asset = transform_asset(asset, tenure)
+        load_dict_to_dynamodb(transformed_asset, __DYNAMODB_ASSET_ENTITY)
 
     lambda_client = boto3.client('lambda')
     person_lambda_payload = """{
