@@ -71,6 +71,15 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                                               __DYNAMODB_ACTIVITY_ENTITY)
                     print("creating tenure")
                     if transformed_tenure != {}:
+                        result_asset = query_dynamodb_by_id('id', transformed_tenure['tenuredAsset']['id'],
+                                                            __DYNAMODB_ASSET_ENTITY)
+                        if len(result_asset) > 0 and transformed_tenure['startOfTenureDate'] > result_asset[0]['tenure']['startOfTenureDate']:
+                            result_asset[0]['tenure']['id'] = transformed_tenure['id']
+                            result_asset[0]['tenure']['startOfTenureDate'] = transformed_tenure['startOfTenureDate']
+                            result_asset[0]['tenure']['endOfTenureDate'] = transformed_tenure['endOfTenureDate']
+                            result_asset[0]['tenure']['type'] = transformed_tenure['tenureType']['description']
+                            result_asset[0]['tenure']['paymentReference'] = transformed_tenure['paymentReference']
+                            load_dict_to_dynamodb(result_asset[0], __DYNAMODB_ASSET_ENTITY)
                         load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
                         load_dict_to_dynamodb(tenure_migrated_activity(transformed_tenure),
                                               __DYNAMODB_ACTIVITY_ENTITY)
@@ -129,6 +138,11 @@ def update_former_tenure_end_date(former_tenures: [Dict]):
             load_dict_to_dynamodb(result_tenure[0], __DYNAMODB_TENURE_ENTITY)
             update_household_members_tenure_end_date(result_tenure[0]['householdMembers'],
                                                      tenure_id, tenure['Void Date'])
+            result_asset = query_dynamodb_by_id('id', result_tenure[0]['tenuredAsset']['id'],
+                                                __DYNAMODB_ASSET_ENTITY)
+            if len(result_asset) > 0:
+                result_asset[0]['tenure']['endOfTenureDate'] = result_tenure[0]['endOfTenureDate']
+                load_dict_to_dynamodb(result_asset[0], __DYNAMODB_ASSET_ENTITY)
 
 
 def run(event, context):
