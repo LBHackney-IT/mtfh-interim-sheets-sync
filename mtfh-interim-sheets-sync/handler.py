@@ -140,7 +140,7 @@ def update_former_tenure_end_date(former_tenures: [Dict]):
                                                      tenure_id, tenure['Void Date'])
             result_asset = query_dynamodb_by_id('id', [result_tenure[0]['tenuredAsset']['id']],
                                                 __DYNAMODB_ASSET_ENTITY)
-            if len(result_asset) > 0:
+            if len(result_asset) > 0 and result_tenure[0]['tenuredAsset']['id'] == result_asset[0]['id']:
                 result_asset[0]['tenure']['endOfTenureDate'] = result_tenure[0]['endOfTenureDate']
                 load_dict_to_dynamodb(result_asset[0], __DYNAMODB_ASSET_ENTITY)
 
