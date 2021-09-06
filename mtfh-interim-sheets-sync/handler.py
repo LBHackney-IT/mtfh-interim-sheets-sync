@@ -225,7 +225,7 @@ def run(event, context):
     process_interim_data(all_leaseholds, assets)
 
     logger.info("spreadsheet new builds")
-    all_leaseholds_range_name = 'New Build!A1:Q33'
+    all_leaseholds_range_name = 'New Build!A1:Q200'
     all_leaseholds = read_google_sheets(__LEASEHOLDS_SPREADSHEET_ID, all_leaseholds_range_name)
     all_leaseholds_new = []
     for leasehold in all_leaseholds:
