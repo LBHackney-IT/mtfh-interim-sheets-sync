@@ -37,6 +37,27 @@ __DYNAMODB_TENURE_ENTITY = "TenureInformation"
 __DYNAMODB_ACTIVITY_ENTITY = "ActivityHistory"
 __DYNAMODB_ASSET_ENTITY = "Assets"
 
+payment_ref_property_ref_fix = {
+    '228011997': '00090269',
+    '228011998': '00090280',
+    '228011999': '00090282',
+    '228012000': '00090110',
+    '228012001': '00090270',
+    '228013057': '00090274',
+    '228013008': '00090135',
+    '228013027': '00090302',
+    '228013034': '00090275',
+    '228013035': '00090272',
+    '228013036': '00090281',
+    '228013049': '00090188',
+    '228013056': '00090322',
+    '228013216': '00090321',
+    '228013217': '00090316',
+    '228013335': '00090317',
+    '228013336': '00090319',
+    '228013337': '00090320'
+}
+
 
 def process_interim_data(all_tenures: [Dict], assets: [Dict]):
     """
@@ -206,18 +227,23 @@ def run(event, context):
     logger.info("spreadsheet new builds")
     all_leaseholds_range_name = 'New Build!A1:Q33'
     all_leaseholds = read_google_sheets(__LEASEHOLDS_SPREADSHEET_ID, all_leaseholds_range_name)
+    all_leaseholds_new = []
     for leasehold in all_leaseholds:
-        leasehold['Date of Birth'] = ''
-        leasehold['Home Tel'] = ''
-        leasehold['Mobile'] = ''
-        leasehold['Property Ref'] = leasehold.pop('Property No')
-        leasehold['Tenancy Type'] = leasehold.pop('Tenancy')
-        if 'Date of New Build' in leasehold:
-            leasehold['Tenancy Start Date'] = leasehold.pop('Date of New Build')
-        else:
-            leasehold['Tenancy Start Date'] = ""
-        leasehold['UH Ref'] = leasehold.pop('UH Rent Acct')
-    process_interim_data(all_leaseholds, assets)
+        if leasehold['Tenant'].strip() not in ('Countryside Partnerships', ''):
+            if leasehold['Payment Ref'] in payment_ref_property_ref_fix:
+                leasehold['Property No'] = payment_ref_property_ref_fix[leasehold['Payment Ref']]
+            leasehold['Date of Birth'] = ''
+            leasehold['Home Tel'] = ''
+            leasehold['Mobile'] = ''
+            leasehold['Property Ref'] = leasehold.pop('Property No')
+            leasehold['Tenancy Type'] = leasehold.pop('Tenancy')
+            if 'Date of New Build' in leasehold:
+                leasehold['Tenancy Start Date'] = leasehold.pop('Date of New Build')
+            else:
+                leasehold['Tenancy Start Date'] = ""
+            leasehold['UH Ref'] = leasehold.pop('UH Rent Acct')
+            all_leaseholds_new.append(leasehold)
+    process_interim_data(all_leaseholds_new, assets)
 
     logger.info("reprocess spreadsheet new builds")
     for asset in all_assets:
