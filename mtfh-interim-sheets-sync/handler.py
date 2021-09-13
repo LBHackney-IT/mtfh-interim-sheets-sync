@@ -58,6 +58,25 @@ payment_ref_property_ref_fix = {
     '228013337': '00090320'
 }
 
+new_changes_payment_reference_mapping = {
+    '1913901402': '0123376/01',
+    '1916723502': '0112512/01',
+    '4065013508': '030182/01',
+    '4350034704': '031743/01',
+    '5602052606': '039277/01',
+    '7312011106': '049324/01',
+    '8533001210': '060527/01',
+    '1924859402': '030201/01',
+    '3376005810': '025273/01',
+    '1931626402': '0121968/01',
+    '1931660402': '0125032/01',
+    '5674080606': '039563/01',
+    '1330093304': '001774/01',
+    '1990062504': '0117712/01',
+    '3376039104': '025350/01',
+    '1939208402': ''
+}
+
 
 def process_interim_data(all_tenures: [Dict], assets: [Dict]):
     """
@@ -245,6 +264,38 @@ def run(event, context):
             leasehold['UH Ref'] = leasehold.pop('UH Rent Acct')
             all_leaseholds_new.append(leasehold)
     process_interim_data(all_leaseholds_new, assets)
+
+    logger.info("tenure changes spreadsheet")
+    changes_spreadsheet_id = '19Q9z1IckmrwWx1l6cGXoUeEBsDTNuW-of1OM3099x6I'
+    changes_range_name = 'Sheet1!A1:M1500'
+    all_changes = read_google_sheets(changes_spreadsheet_id, changes_range_name)
+    for change in all_changes:
+        if change['Payment Ref'] in new_changes_payment_reference_mapping:
+            change['UH Ref'] = new_changes_payment_reference_mapping[change['Payment Ref']]
+
+        if change['UH Ref'].strip() != '':
+            tenure_id = create_hashed_id(change['UH Ref'])
+        else:
+            tenure_id = create_hashed_id(change['Payment Ref'])
+
+        if change['Type of change'].strip().lower() == 'new let':
+            tenure = query_dynamodb_by_id('id', [tenure_id], 'TenureInformation')
+            if len(tenure) == 0:
+                change['Date of Birth'] = ''
+                change['Home Tel'] = ''
+                change['Mobile'] = ''
+                if change['Tenancy Type'] == 'IT':
+                    change['Tenancy Type'] = 'Introductory'
+                elif change['Tenancy Type'] == 'Decant Rent Free Lic':
+                    change['Tenancy Type'] = 'Temp Decant'
+                process_interim_data([change], assets)
+        elif change['Type of change'].strip().lower() in ('new void', 'rtb'):
+            tenure = query_dynamodb_by_id('id', [tenure_id], 'TenureInformation')
+            if len(tenure) == 0:
+                print("problem: tenure not found for 'new void': " + change['Payment Ref'])
+            else:
+                if tenure[0]['endOfTenureDate'] is None and change['Void Date'] not in ('Pre Cyber Attack?', 'Non-Possessed'):
+                    update_former_tenure_end_date([change])
 
     logger.info("reprocess spreadsheet new builds")
     for asset in all_assets:
