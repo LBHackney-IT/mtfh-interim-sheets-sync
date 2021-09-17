@@ -28,6 +28,7 @@ __PASSWORD = os.getenv("UH_PASSWORD")
 __TENANCIES_SPREADSHEET_ID = os.getenv("TENANCIES_SPREADSHEET_ID")
 __LEASEHOLDS_SPREADSHEET_ID = os.getenv("LEASEHOLDS_SPREADSHEET_ID")
 __ASSETS_SPREADSHEET_ID = os.getenv("ASSETS_SPREADSHEET_ID")
+__MISSING_TENURES_SPREADSHEET_ID = os.getenv("MISSING_TENURES_SPREADSHEET_ID")
 
 __ASSETS_QUERY_FILE = "queries/interim_process_assets.sql"
 
@@ -296,6 +297,22 @@ def run(event, context):
             else:
                 if tenure[0]['endOfTenureDate'] is None and change['Void Date'] not in ('Pre Cyber Attack?', 'Non-Possessed'):
                     update_former_tenure_end_date([change])
+
+    logger.info("Mehdi - Missing tenures spreadsheet")
+    missing_tenures_range_name = 'New Build!A1:G200'
+    missing_tenures = read_google_sheets(__MISSING_TENURES_SPREADSHEET_ID, missing_tenures_range_name)
+    for missing_tenure in missing_tenures:
+        missing_tenure['Date of Birth'] = ''
+        missing_tenure['Home Tel'] = ''
+        missing_tenure['Mobile'] = ''
+        missing_tenure['Property Ref'] = missing_tenure.pop('Property No')
+        missing_tenure['Tenancy Type'] = missing_tenure.pop('Tenancy')
+        if 'Date of New Build' in missing_tenure:
+            missing_tenure['Tenancy Start Date'] = missing_tenure.pop('Date of New Build')
+        else:
+            missing_tenure['Tenancy Start Date'] = ""
+        missing_tenure['UH Ref'] = missing_tenure.pop('UH Rent Acct')
+    process_interim_data(missing_tenure, assets)
 
     logger.info("reprocess spreadsheet new builds")
     for asset in all_assets:
