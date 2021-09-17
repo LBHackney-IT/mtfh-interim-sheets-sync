@@ -312,7 +312,7 @@ def run(event, context):
         else:
             missing_tenure['Tenancy Start Date'] = ""
         missing_tenure['UH Ref'] = missing_tenure.pop('UH Rent Acct')
-    process_interim_data(missing_tenure, assets)
+    process_interim_data(missing_tenures, assets)
 
     logger.info("reprocess spreadsheet new builds")
     for asset in all_assets:
