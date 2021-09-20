@@ -97,7 +97,7 @@ def tenure_people_migrated_activity(tenure: Dict) -> [Dict]:
                 "id": str(uuid.UUID(hashlib.md5(("migrate" + "tenure" + tenure['id'] +
                                                  person['id']).strip().encode()).hexdigest())),
                 "type": "migrate",
-                "targetType": "tenurePerson",
+                "targetType": "tenure",
                 "targetId": tenure['id'],
                 "createdAt": datetime.now().isoformat(timespec="seconds"),
                 "timeToLiveForRecord": 0,
