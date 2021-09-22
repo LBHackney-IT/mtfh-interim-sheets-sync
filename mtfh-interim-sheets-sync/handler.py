@@ -125,10 +125,10 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                         load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
                         load_dict_to_dynamodb(tenure_migrated_activity(transformed_tenure),
                                               __DYNAMODB_ACTIVITY_ENTITY)
-                        for tenure_person_activity in tenure_people_migrated_activity(
-                                transformed_tenure):
-                            load_dict_to_dynamodb(tenure_person_activity,
-                                                  __DYNAMODB_ACTIVITY_ENTITY)
+                        # for tenure_person_activity in tenure_people_migrated_activity(
+                        #         transformed_tenure):
+                        #     load_dict_to_dynamodb(tenure_person_activity,
+                        #                           __DYNAMODB_ACTIVITY_ENTITY)
 
                     for phone in transformed_phones:
                         result_person = query_dynamodb_by_id('id', [phone['targetId']],
