@@ -279,7 +279,7 @@ def run(event, context):
         else:
             tenure_id = create_hashed_id(change['Payment Ref'])
 
-        if change['Type of change'].strip().lower() == 'new let':
+        if change['Type of change'].strip().lower() in ('new let', 'let & void after cyber attack'):
             tenure = query_dynamodb_by_id('id', [tenure_id], 'TenureInformation')
             if len(tenure) == 0:
                 change['Date of Birth'] = ''
@@ -290,7 +290,7 @@ def run(event, context):
                 elif change['Tenancy Type'] == 'Decant Rent Free Lic':
                     change['Tenancy Type'] = 'Temp Decant'
                 process_interim_data([change], assets)
-        elif change['Type of change'].strip().lower() in ('new void', 'rtb'):
+        elif change['Type of change'].strip().lower() in ('new void', 'rtb', 'let & void after cyber attack'):
             tenure = query_dynamodb_by_id('id', [tenure_id], 'TenureInformation')
             if len(tenure) == 0:
                 print("problem: tenure not found for 'new void': " + change['Payment Ref'])
