@@ -114,13 +114,15 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                     if transformed_tenure != {}:
                         result_asset = query_dynamodb_by_id('id', [transformed_tenure['tenuredAsset']['id']],
                                                             __DYNAMODB_ASSET_ENTITY)
-                        if len(result_asset) > 0 and (result_asset[0]['tenure'] == {} or
+                        if len(result_asset) > 0 and (result_asset[0]['tenure'] == {} or not result_asset[0]['tenure'] or
                                                       transformed_tenure['startOfTenureDate'] > result_asset[0]['tenure']['startOfTenureDate']):
-                            result_asset[0]['tenure']['id'] = transformed_tenure['id']
-                            result_asset[0]['tenure']['startOfTenureDate'] = transformed_tenure['startOfTenureDate']
-                            result_asset[0]['tenure']['endOfTenureDate'] = transformed_tenure['endOfTenureDate']
-                            result_asset[0]['tenure']['type'] = transformed_tenure['tenureType']['description']
-                            result_asset[0]['tenure']['paymentReference'] = transformed_tenure['paymentReference']
+                            result_asset[0]['tenure'] = {
+                                'id': transformed_tenure['id'],
+                                'startOfTenureDate': transformed_tenure['startOfTenureDate'],
+                                'endOfTenureDate': transformed_tenure['endOfTenureDate'],
+                                'type': transformed_tenure['tenureType']['description'],
+                                'paymentReference': transformed_tenure['paymentReference']
+                            }
                             load_dict_to_dynamodb(result_asset[0], __DYNAMODB_ASSET_ENTITY)
                         load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
                         load_dict_to_dynamodb(tenure_migrated_activity(transformed_tenure),
