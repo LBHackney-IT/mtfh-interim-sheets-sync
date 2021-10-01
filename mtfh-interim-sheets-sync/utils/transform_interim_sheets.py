@@ -173,16 +173,16 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
     transformed_people_for_tenure = []
     transformed_phones = []
     for name in get_list_of_tenants(tenure['Tenant']):
+        if name_starts_with_title(name):
+            title = name.split(' ')[0]
+            firstname = " ".join(name.split(' ')[1:-1])
+            surname = name.split(' ')[-1]
+        else:
+            title = ""
+            firstname = " ".join(name.split(' ')[0:-1])
+            surname = name.split(' ')[-1]
         if 'limited' not in name.lower() and 'ltd' not in name.lower() \
                 and 'TBG (Open Door)' not in name:
-            if name_starts_with_title(name):
-                title = name.split(' ')[0]
-                firstname = " ".join(name.split(' ')[1:-1])
-                surname = name.split(' ')[-1]
-            else:
-                title = ""
-                firstname = " ".join(name.split(' ')[0:-1])
-                surname = name.split(' ')[-1]
             transformed_people.append({
                 'id': create_hashed_id(surname.lower().strip() + firstname.lower().strip() + dob),
                 'preferredTitle': title,
@@ -245,6 +245,15 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
                         },
                         'lastModified': str(datetime.now().isoformat())
                     })
+        else:
+            transformed_people_for_tenure.append({
+                'id': create_hashed_id(surname.lower().strip() + firstname.lower().strip() + dob),
+                'type': 'Organisation',
+                'fullName': firstname + " " + surname,
+                'isResponsible': True,
+                'dateOfBirth': dob,
+                'personTenureType': get_person_tenure_type(tenure['Tenancy Type'])
+            })
     transformed_tenure = {} if len(transformed_people_for_tenure) == 0 else {
         'id': create_hashed_id(tenure['Payment Ref']),
         'paymentReference': tenure['Payment Ref'],
