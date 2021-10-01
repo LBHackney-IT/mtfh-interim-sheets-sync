@@ -235,22 +235,25 @@ def run(event, context):
     logger.info("spreadsheet new leaseholds")
     all_leaseholds_range_name = 'New Assignment / RTB!A1:P1000'
     all_leaseholds = read_google_sheets(__LEASEHOLDS_SPREADSHEET_ID, all_leaseholds_range_name)
+    all_leaseholds_new = []
     for leasehold in all_leaseholds:
-        leasehold['Date of Birth'] = ''
-        leasehold['Home Tel'] = ''
-        leasehold['Mobile'] = ''
-        leasehold['Property Ref'] = leasehold.pop('Property No')
-        leasehold['Tenancy Type'] = leasehold.pop('Tenancy')
-        leasehold['Tenancy Start Date'] = leasehold.pop('Assignment / RTB Date')
-        leasehold['UH Ref'] = leasehold.pop('UH Rent Acct')
-    process_interim_data(all_leaseholds, assets)
+        if leasehold['Tenant'].strip() not in ('Executor Marie Paulette Pierre'):
+            leasehold['Date of Birth'] = ''
+            leasehold['Home Tel'] = ''
+            leasehold['Mobile'] = ''
+            leasehold['Property Ref'] = leasehold.pop('Property No')
+            leasehold['Tenancy Type'] = leasehold.pop('Tenancy')
+            leasehold['Tenancy Start Date'] = leasehold.pop('Assignment / RTB Date')
+            leasehold['UH Ref'] = leasehold.pop('UH Rent Acct')
+            all_leaseholds_new.append(leasehold)
+    process_interim_data(all_leaseholds_new, assets)
 
     logger.info("spreadsheet new builds")
     all_leaseholds_range_name = 'New Build!A1:Q200'
     all_leaseholds = read_google_sheets(__LEASEHOLDS_SPREADSHEET_ID, all_leaseholds_range_name)
     all_leaseholds_new = []
     for leasehold in all_leaseholds:
-        if leasehold['Tenant'].strip() not in ('Countryside Partnerships', '', 'Executor Marie Paulette Pierre'):
+        if leasehold['Tenant'].strip() not in ('Countryside Partnerships', ''):
             if leasehold['Payment Ref'] in payment_ref_property_ref_fix:
                 leasehold['Property No'] = payment_ref_property_ref_fix[leasehold['Payment Ref']]
             leasehold['Date of Birth'] = ''
