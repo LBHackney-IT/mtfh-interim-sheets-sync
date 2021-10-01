@@ -250,7 +250,7 @@ def run(event, context):
     all_leaseholds = read_google_sheets(__LEASEHOLDS_SPREADSHEET_ID, all_leaseholds_range_name)
     all_leaseholds_new = []
     for leasehold in all_leaseholds:
-        if leasehold['Tenant'].strip() not in ('Countryside Partnerships', ''):
+        if leasehold['Tenant'].strip() not in ('Countryside Partnerships', '', 'Executor Marie Paulette Pierre'):
             if leasehold['Payment Ref'] in payment_ref_property_ref_fix:
                 leasehold['Property No'] = payment_ref_property_ref_fix[leasehold['Payment Ref']]
             leasehold['Date of Birth'] = ''
