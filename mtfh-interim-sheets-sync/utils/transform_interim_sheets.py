@@ -218,7 +218,12 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
                 'personTenureType': get_person_tenure_type(tenure['Tenancy Type'])
             })
 
-            for phone in tenure['Home Tel'].split('/') + tenure['Mobile'].split('/'):
+            phones = []
+            if 'Home Tel' in tenure:
+                phones += tenure['Home Tel'].split('/')
+            if 'Mobile' in tenure:
+                phones += tenure['Mobile'].split('/')
+            for phone in phones:
                 if phone.strip() != '':
                     transformed_phones.append({
                         'id': create_hashed_id(phone),
