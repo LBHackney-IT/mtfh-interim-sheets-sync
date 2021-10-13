@@ -167,7 +167,10 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
     :return: List of responsible people, their contact details and the tenure object.
     """
     asset_details = get_asset_details(assets, tenure['Property Ref'].strip())
-    dob = format_date(tenure['Date of Birth'])
+    if 'Date of Birth' in tenure:
+        dob = format_date(tenure['Date of Birth'])
+    else:
+        dob = '1900-01-01'
 
     transformed_people = []
     transformed_people_for_tenure = []
