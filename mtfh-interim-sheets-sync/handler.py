@@ -205,12 +205,16 @@ def run(event, context):
     for asset in all_assets:
         tenure_res = query_dynamodb_by_id('id', [create_hashed_id(asset['Payment Ref'])], __DYNAMODB_TENURE_ENTITY)
         if len(tenure_res) > 0:
+            if 'endOfTenureDate' in tenure_res[0]:
+                tenure_end_date = tenure_res[0]['endOfTenureDate']
+            else:
+                tenure_end_date = None
             tenure = {
                 'id': tenure_res[0]['id'],
                 'paymentReference': tenure_res[0]['paymentReference'],
                 'type': tenure_res[0]['tenureType']['description'],
                 'startOfTenureDate': tenure_res[0]['startOfTenureDate'],
-                'endOfTenureDate': tenure_res[0]['endOfTenureDate']
+                'endOfTenureDate': tenure_end_date
             }
         else:
             tenure = {}
@@ -323,12 +327,16 @@ def run(event, context):
     for asset in all_assets:
         tenure_res = query_dynamodb_by_id('id', [create_hashed_id(asset['Payment Ref'])], __DYNAMODB_TENURE_ENTITY)
         if len(tenure_res) > 0:
+            if 'endOfTenureDate' in tenure_res[0]:
+                tenure_end_date = tenure_res[0]['endOfTenureDate']
+            else:
+                tenure_end_date = None
             tenure = {
                 'id': tenure_res[0]['id'],
                 'paymentReference': tenure_res[0]['paymentReference'],
                 'type': tenure_res[0]['tenureType']['description'],
                 'startOfTenureDate': tenure_res[0]['startOfTenureDate'],
-                'endOfTenureDate': tenure_res[0]['endOfTenureDate']
+                'endOfTenureDate': tenure_end_date
             }
         else:
             tenure = {}
