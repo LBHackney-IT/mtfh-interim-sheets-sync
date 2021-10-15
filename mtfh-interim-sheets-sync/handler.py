@@ -229,8 +229,8 @@ def run(event, context):
         })
 
     assets_range_name = 'New Build From Interim Spreadsheet!A1:N300'
-    all_assets = read_google_sheets(__ASSETS_SPREADSHEET_ID, assets_range_name)
-    for asset in all_assets:
+    all_assets_look = read_google_sheets(__ASSETS_SPREADSHEET_ID, assets_range_name)
+    for asset in all_assets_look:
         transformed_asset = transform_asset(asset, {})
         asset_lookup_result = [a for a in assets if a['prop_ref'].strip() == transformed_asset['assetId']]
         if len(asset_lookup_result) == 0:
