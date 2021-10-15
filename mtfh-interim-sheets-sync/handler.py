@@ -228,6 +228,20 @@ def run(event, context):
             'asset_type': transformed_asset['assetType']
         })
 
+    assets_range_name = 'New Build From Interim Spreadsheet!A1:N300'
+    all_assets = read_google_sheets(__ASSETS_SPREADSHEET_ID, assets_range_name)
+    for asset in all_assets:
+        transformed_asset = transform_asset(asset, {})
+        asset_lookup_result = [a for a in assets if a['prop_ref'].strip() == transformed_asset['assetId']]
+        if len(asset_lookup_result) == 0:
+            assets.append({
+                'prop_ref': transformed_asset['assetId'],
+                'property_llpg_ref': asset['uprn'].strip(),
+                'property_full_address': transformed_asset['assetAddress']['addressLine1'] + ', ' +
+                                         transformed_asset['assetAddress']['postCode'],
+                'asset_type': transformed_asset['assetType']
+            })
+
     logger.info("spreadsheet tenancies 2021/04 upto now")
     all_tenancies_range_name = 'Weekly Payments!A1:BY22000'
     all_tenancies = read_google_sheets(__TENANCIES_SPREADSHEET_ID, all_tenancies_range_name)
