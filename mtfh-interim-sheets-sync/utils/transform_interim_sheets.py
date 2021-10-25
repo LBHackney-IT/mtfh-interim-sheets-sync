@@ -270,7 +270,8 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
             'id': asset_details['asset_id'],
             'fullAddress': asset_details['asset_full_address'],
             'uprn': asset_details['uprn'],
-            'type': asset_details['asset_type']
+            'type': asset_details['asset_type'],
+            'propertyReference': asset_details['property_ref']
         },
         'charges': None,
         'startOfTenureDate': format_date(tenure['Tenancy Start Date']),
