@@ -147,13 +147,16 @@ def get_list_of_tenants(tenants: str) -> []:
     :return: An array of people.
     """
     final_list_of_people = []
-    for person in tenants.strip().split(' & '):
-        if ' and ' in person:
-            final_list_of_people += person.split(' and ')
-        elif ',' in person:
-            final_list_of_people += person.split(',')
-        else:
-            final_list_of_people.append(person)
+    if tenants.strip() in ('Sal & Co Investment Limited', 'Sal & Co Investment Ltd'):
+        final_list_of_people.append(tenants)
+    else:
+        for person in tenants.strip().split(' & '):
+            if ' and ' in person:
+                final_list_of_people += person.split(' and ')
+            elif ',' in person:
+                final_list_of_people += person.split(',')
+            else:
+                final_list_of_people.append(person)
     return final_list_of_people
 
 
