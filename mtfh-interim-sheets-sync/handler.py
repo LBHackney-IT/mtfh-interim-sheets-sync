@@ -243,7 +243,7 @@ def run(event, context):
             })
 
     logger.info("spreadsheet tenancies 2021/04 upto now")
-    all_tenancies_range_name = 'Weekly Payments!A1:BY22000'
+    all_tenancies_range_name = 'Weekly Payments!A1:CI22000'
     all_tenancies = read_google_sheets(__TENANCIES_SPREADSHEET_ID, all_tenancies_range_name)
     process_interim_data(all_tenancies, assets)
 
