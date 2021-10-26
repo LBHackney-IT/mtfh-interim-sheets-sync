@@ -186,82 +186,79 @@ def transform_tenure(tenure: Dict, assets: [Dict]) -> ([Dict], [Dict], Dict):
             surname = name.split(' ')[-1]
         if 'limited' not in name.lower() and 'ltd' not in name.lower() \
                 and 'TBG (Open Door)' not in name:
-            transformed_people.append({
-                'id': create_hashed_id(surname.lower().strip() + firstname.lower().strip() + dob),
-                'preferredTitle': title,
-                'title': title,
-                'preferredFirstName': firstname,
-                'firstName': firstname,
-                'preferredMiddleName': "",
-                'middleName': "",
-                'preferredSurname': surname,
-                'surname': surname,
-                'placeOfBirth': "",
-                'dateOfBirth': dob,
-                'personTypes': ['Tenant'],
-                'tenures': [{
-                    'id': create_hashed_id(tenure['Payment Ref']),
-                    'paymentReference': tenure['Payment Ref'],
-                    'type': tenure['Tenancy Type'].strip(),
-                    'startDate': format_date(tenure['Tenancy Start Date']),
-                    'endDate': None,
-                    'assetFullAddress': asset_details['asset_full_address'],
-                    'uprn': asset_details['uprn'],
-                    'propertyReference': asset_details['property_ref'],
-                    'assetId': asset_details['asset_id']
-                }],
-                'lastModified': str(datetime.now().isoformat())
-            })
-            transformed_people_for_tenure.append({
-                'id': create_hashed_id(surname.lower().strip() + firstname.lower().strip() + dob),
-                'type': 'person',
-                'fullName': firstname + " " + surname,
-                'isResponsible': True,
-                'dateOfBirth': dob,
-                'personTenureType': get_person_tenure_type(tenure['Tenancy Type'])
-            })
-
-            phones = []
-            if 'Home Tel' in tenure:
-                phones += tenure['Home Tel'].split('/')
-            if 'Mobile' in tenure:
-                phones += tenure['Mobile'].split('/')
-            for phone in phones:
-                if phone.strip() != '':
-                    transformed_phones.append({
-                        'id': create_hashed_id(phone),
-                        'targetId': create_hashed_id(surname.lower().strip()
-                                                     + firstname.lower().strip() + dob),
-                        'targetType': 'person',
-                        'contactInformation': {
-                            'contactType': 'phone',
-                            'subType': 'mobile' if phone.strip().startswith('07') else 'landline',
-                            'value': phone.strip(),
-                            'description': '',
-                            'addressExtended': None
-                        },
-                        'sourceServiceArea': {
-                            'area': 'Housing',
-                            'isDefault': True
-                        },
-                        'recordValidUntil': None,
-                        'isActive': True,
-                        'createdBy': {
-                            'createdAt': str(datetime.now().isoformat()),
-                            'fullName': 'Import',
-                            'emailAddress': ''
-                        },
-                        'lastModified': str(datetime.now().isoformat())
-                    })
+            person_organisation = "person"
         else:
-            transformed_people_for_tenure.append({
-                'id': create_hashed_id(surname.lower().strip() + firstname.lower().strip() + dob),
-                'type': 'Organisation',
-                'fullName': firstname + " " + surname,
-                'isResponsible': True,
-                'dateOfBirth': dob,
-                'personTenureType': get_person_tenure_type(tenure['Tenancy Type'])
-            })
+            person_organisation = "organisation"
+        transformed_people.append({
+            'id': create_hashed_id(surname.lower().strip() + firstname.lower().strip() + dob),
+            'preferredTitle': title,
+            'title': title,
+            'preferredFirstName': firstname,
+            'firstName': firstname,
+            'preferredMiddleName': "",
+            'middleName': "",
+            'preferredSurname': surname,
+            'surname': surname,
+            'placeOfBirth': "",
+            'dateOfBirth': dob,
+            'personTypes': ['Tenant'],
+            'tenures': [{
+                'id': create_hashed_id(tenure['Payment Ref']),
+                'paymentReference': tenure['Payment Ref'],
+                'type': tenure['Tenancy Type'].strip(),
+                'startDate': format_date(tenure['Tenancy Start Date']),
+                'endDate': None,
+                'assetFullAddress': asset_details['asset_full_address'],
+                'uprn': asset_details['uprn'],
+                'propertyReference': asset_details['property_ref'],
+                'assetId': asset_details['asset_id']
+            }],
+            'lastModified': str(datetime.now().isoformat())
+        })
+        transformed_people_for_tenure.append({
+            'id': create_hashed_id(surname.lower().strip() + firstname.lower().strip() + dob),
+            'type': person_organisation,
+            'fullName': firstname + " " + surname,
+            'isResponsible': True,
+            'dateOfBirth': dob,
+            'personTenureType': get_person_tenure_type(tenure['Tenancy Type'])
+        })
+
+        phones = []
+        if 'Home Tel' in tenure:
+            phones += tenure['Home Tel'].split('/')
+        if 'Mobile' in tenure:
+            phones += tenure['Mobile'].split('/')
+        for phone in phones:
+            if phone.strip() != '':
+                transformed_phones.append({
+                    'id': create_hashed_id(phone),
+                    'targetId': create_hashed_id(surname.lower().strip()
+                                                 + firstname.lower().strip() + dob),
+                    'targetType': person_organisation,
+                    'contactInformation': {
+                        'contactType': 'phone',
+                        'subType': 'mobile' if phone.strip().startswith('07') else 'landline',
+                        'value': phone.strip(),
+                        'description': '',
+                        'addressExtended': None
+                    },
+                    'sourceServiceArea': {
+                        'area': 'Housing',
+                        'isDefault': True
+                    },
+                    'recordValidUntil': None,
+                    'isActive': True,
+                    'createdBy': {
+                        'createdAt': str(datetime.now().isoformat()),
+                        'fullName': 'Import',
+                        'emailAddress': ''
+                    },
+                    'lastModified': str(datetime.now().isoformat())
+                })
+    if person_organisation == "organisation":
+        for person in transformed_people:
+            person['isOrganisation'] = True
     transformed_tenure = {} if len(transformed_people_for_tenure) == 0 else {
         'id': create_hashed_id(tenure['Payment Ref']),
         'paymentReference': tenure['Payment Ref'],
