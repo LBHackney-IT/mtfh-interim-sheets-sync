@@ -248,7 +248,7 @@ def run(event, context):
     process_interim_data(all_tenancies, assets)
 
     logger.info("Former tenancies 2021/04 upto now")
-    former_tenancies_range_name = 'Former Tenants!A1:BU1000'
+    former_tenancies_range_name = 'Former Tenants!A1:CI1000'
     former_tenancies = read_google_sheets(__TENANCIES_SPREADSHEET_ID, former_tenancies_range_name)
     update_former_tenure_end_date(former_tenancies)
 
