@@ -78,6 +78,9 @@ new_changes_payment_reference_mapping = {
     '1939208402': ''
 }
 
+payment_reference_exclusion_list = ['1929358102', '1920820402', '1930564402', '1928360106', '1922663904', '1943116504', '1907087202', '1989097104', '1938994502', '1911269102',
+                                    '1921817102', '1908333506', '1932008502', '1929358102', '1936719004', '1911253604', '1909758304', '1927038402', '1939990602']
+
 
 def process_interim_data(all_tenures: [Dict], assets: [Dict]):
     """
@@ -89,7 +92,7 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
     """
     for tenure in all_tenures:
         print("processing tenure: " + tenure['Payment Ref'].strip())
-        if tenure['UH Ref'].strip() in ('', 'New Assignment', 'New Build', 'New RTB'):
+        if tenure['UH Ref'].strip() in ('', 'New Assignment', 'New Build', 'New RTB') and tenure['Payment Ref'].strip() not in payment_reference_exclusion_list:
             transformed_people, transformed_phones, transformed_tenure = transform_tenure(tenure,
                                                                                           assets)
 
