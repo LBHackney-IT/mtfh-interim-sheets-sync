@@ -245,15 +245,15 @@ def run(event, context):
                 'asset_type': transformed_asset['assetType']
             })
 
-    logger.info("spreadsheet tenancies 2021/04 upto now")
-    all_tenancies_range_name = 'Weekly Payments!A1:CI22000'
-    all_tenancies = read_google_sheets(__TENANCIES_SPREADSHEET_ID, all_tenancies_range_name)
-    process_interim_data(all_tenancies, assets)
+    # logger.info("spreadsheet tenancies 2021/04 upto now")
+    # all_tenancies_range_name = 'Weekly Payments!A1:CI22000'
+    # all_tenancies = read_google_sheets(__TENANCIES_SPREADSHEET_ID, all_tenancies_range_name)
+    # process_interim_data(all_tenancies, assets)
 
-    logger.info("Former tenancies 2021/04 upto now")
-    former_tenancies_range_name = 'Former Tenants!A1:CI1000'
-    former_tenancies = read_google_sheets(__TENANCIES_SPREADSHEET_ID, former_tenancies_range_name)
-    update_former_tenure_end_date(former_tenancies)
+    # logger.info("Former tenancies 2021/04 upto now")
+    # former_tenancies_range_name = 'Former Tenants!A1:CI1000'
+    # former_tenancies = read_google_sheets(__TENANCIES_SPREADSHEET_ID, former_tenancies_range_name)
+    # update_former_tenure_end_date(former_tenancies)
 
     logger.info("spreadsheet new leaseholds")
     all_leaseholds_range_name = 'New Assignment / RTB!A1:P1000'
