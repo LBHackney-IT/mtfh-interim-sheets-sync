@@ -292,53 +292,53 @@ def run(event, context):
             all_leaseholds_new.append(leasehold)
     process_interim_data(all_leaseholds_new, assets)
 
-    logger.info("tenure changes spreadsheet")
-    changes_spreadsheet_id = '19Q9z1IckmrwWx1l6cGXoUeEBsDTNuW-of1OM3099x6I'
-    changes_range_name = 'Sheet1!A1:M1500'
-    all_changes = read_google_sheets(changes_spreadsheet_id, changes_range_name)
-    for change in all_changes:
-        if change['Payment Ref'] in new_changes_payment_reference_mapping:
-            change['UH Ref'] = new_changes_payment_reference_mapping[change['Payment Ref']]
+    # logger.info("tenure changes spreadsheet")
+    # changes_spreadsheet_id = '19Q9z1IckmrwWx1l6cGXoUeEBsDTNuW-of1OM3099x6I'
+    # changes_range_name = 'Sheet1!A1:M1500'
+    # all_changes = read_google_sheets(changes_spreadsheet_id, changes_range_name)
+    # for change in all_changes:
+    #     if change['Payment Ref'] in new_changes_payment_reference_mapping:
+    #         change['UH Ref'] = new_changes_payment_reference_mapping[change['Payment Ref']]
 
-        if change['UH Ref'].strip() != '':
-            tenure_id = create_hashed_id(change['UH Ref'])
-        else:
-            tenure_id = create_hashed_id(change['Payment Ref'])
+    #     if change['UH Ref'].strip() != '':
+    #         tenure_id = create_hashed_id(change['UH Ref'])
+    #     else:
+    #         tenure_id = create_hashed_id(change['Payment Ref'])
 
-        if change['Type of change'].strip().lower() in ('new let', 'let & void after cyber attack'):
-            tenure = query_dynamodb_by_id('id', [tenure_id], 'TenureInformation')
-            if len(tenure) == 0:
-                change['Date of Birth'] = ''
-                change['Home Tel'] = ''
-                change['Mobile'] = ''
-                if change['Tenancy Type'] == 'IT':
-                    change['Tenancy Type'] = 'Introductory'
-                elif change['Tenancy Type'] == 'Decant Rent Free Lic':
-                    change['Tenancy Type'] = 'Temp Decant'
-                process_interim_data([change], assets)
-        if change['Type of change'].strip().lower() in ('new void', 'rtb', 'let & void after cyber attack'):
-            tenure = query_dynamodb_by_id('id', [tenure_id], 'TenureInformation')
-            if len(tenure) == 0:
-                print("problem: tenure not found for 'new void': " + change['Payment Ref'])
-            else:
-                if tenure[0]['endOfTenureDate'] is None and change['Void Date'] not in ('Pre Cyber Attack?', 'Non-Possessed'):
-                    update_former_tenure_end_date([change])
+    #     if change['Type of change'].strip().lower() in ('new let', 'let & void after cyber attack'):
+    #         tenure = query_dynamodb_by_id('id', [tenure_id], 'TenureInformation')
+    #         if len(tenure) == 0:
+    #             change['Date of Birth'] = ''
+    #             change['Home Tel'] = ''
+    #             change['Mobile'] = ''
+    #             if change['Tenancy Type'] == 'IT':
+    #                 change['Tenancy Type'] = 'Introductory'
+    #             elif change['Tenancy Type'] == 'Decant Rent Free Lic':
+    #                 change['Tenancy Type'] = 'Temp Decant'
+    #             process_interim_data([change], assets)
+    #     if change['Type of change'].strip().lower() in ('new void', 'rtb', 'let & void after cyber attack'):
+    #         tenure = query_dynamodb_by_id('id', [tenure_id], 'TenureInformation')
+    #         if len(tenure) == 0:
+    #             print("problem: tenure not found for 'new void': " + change['Payment Ref'])
+    #         else:
+    #             if tenure[0]['endOfTenureDate'] is None and change['Void Date'] not in ('Pre Cyber Attack?', 'Non-Possessed'):
+    #                 update_former_tenure_end_date([change])
 
-    logger.info("Mehdi - Missing tenures spreadsheet")
-    missing_tenures_range_name = 'New Build!A1:G200'
-    missing_tenures = read_google_sheets(__MISSING_TENURES_SPREADSHEET_ID, missing_tenures_range_name)
-    for missing_tenure in missing_tenures:
-        missing_tenure['Date of Birth'] = ''
-        missing_tenure['Home Tel'] = ''
-        missing_tenure['Mobile'] = ''
-        missing_tenure['Property Ref'] = missing_tenure.pop('Property No')
-        missing_tenure['Tenancy Type'] = missing_tenure.pop('Tenancy')
-        if 'Date of New Build' in missing_tenure:
-            missing_tenure['Tenancy Start Date'] = missing_tenure.pop('Date of New Build')
-        else:
-            missing_tenure['Tenancy Start Date'] = ""
-        missing_tenure['UH Ref'] = missing_tenure.pop('UH Rent Acct')
-    process_interim_data(missing_tenures, assets)
+    # logger.info("Mehdi - Missing tenures spreadsheet")
+    # missing_tenures_range_name = 'New Build!A1:G200'
+    # missing_tenures = read_google_sheets(__MISSING_TENURES_SPREADSHEET_ID, missing_tenures_range_name)
+    # for missing_tenure in missing_tenures:
+    #     missing_tenure['Date of Birth'] = ''
+    #     missing_tenure['Home Tel'] = ''
+    #     missing_tenure['Mobile'] = ''
+    #     missing_tenure['Property Ref'] = missing_tenure.pop('Property No')
+    #     missing_tenure['Tenancy Type'] = missing_tenure.pop('Tenancy')
+    #     if 'Date of New Build' in missing_tenure:
+    #         missing_tenure['Tenancy Start Date'] = missing_tenure.pop('Date of New Build')
+    #     else:
+    #         missing_tenure['Tenancy Start Date'] = ""
+    #     missing_tenure['UH Ref'] = missing_tenure.pop('UH Rent Acct')
+    # process_interim_data(missing_tenures, assets)
 
     logger.info("reprocess spreadsheet new builds")
     for asset in all_assets:
