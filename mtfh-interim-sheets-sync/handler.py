@@ -203,7 +203,7 @@ def run(event, context):
                      open(__ASSETS_QUERY_FILE, 'r').read())
 
     logger.info("spreadsheet assets")
-    assets_range_name = 'New Build properties!A1:L300'
+    assets_range_name = 'New Build properties!A1:N300'
     all_assets = read_google_sheets(__ASSETS_SPREADSHEET_ID, assets_range_name)
     for asset in all_assets:
         tenure_res = query_dynamodb_by_id('id', [create_hashed_id(asset['Payment Ref'])], __DYNAMODB_TENURE_ENTITY)
@@ -244,7 +244,7 @@ def run(event, context):
                                          transformed_asset['assetAddress']['postCode'],
                 'asset_type': transformed_asset['assetType']
             })
-
+            
     # logger.info("spreadsheet tenancies 2021/04 upto now")
     # all_tenancies_range_name = 'Weekly Payments!A1:CI22000'
     # all_tenancies = read_google_sheets(__TENANCIES_SPREADSHEET_ID, all_tenancies_range_name)

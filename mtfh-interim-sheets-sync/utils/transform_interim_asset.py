@@ -22,7 +22,7 @@ def transform_asset(interim_asset: Dict, asset_tenure: Dict) -> Dict:
         'assetType': 'Dwelling',
         'assetLocation': None,
         'assetAddress': {
-            'uprn': "",
+            'uprn': interim_asset['uprn'],
             'addressLine1': interim_asset['Address Line 1'],
             'addressLine2': interim_asset['Address Line 2'],
             'addressLine3': interim_asset['Address Line 3'],
