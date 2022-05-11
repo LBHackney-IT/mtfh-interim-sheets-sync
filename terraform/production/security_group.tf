@@ -1,6 +1,6 @@
 data "aws_vpc" "production_vpc" {
   tags = {
-    Name = "vpc-housing-production"
+    Name = "housing-prod"
   }
 }
 
