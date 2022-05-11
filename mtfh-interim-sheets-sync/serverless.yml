@@ -1,7 +1,4 @@
 service: mtfh-interim-sheets-sync
-
-frameworkVersion: '2'
-
 plugins:
   - serverless-python-requirements
 
