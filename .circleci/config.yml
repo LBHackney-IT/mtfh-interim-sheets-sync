@@ -58,8 +58,6 @@ commands:
     parameters:
       stage:
         type: string
-      aws-account:
-        type: string
     steps:
       - *attach_workspace
       - attach_workspace:
@@ -78,7 +76,7 @@ commands:
           name: Deploy lambda
           command: |
             cd ./mtfh-interim-sheets-sync/
-            sls deploy --stage <<parameters.stage>> --account <<parameters.aws-account>> --conceal
+            sls deploy --stage <<parameters.stage>> --conceal
 
 jobs:
 #  check-code-formatting:
@@ -116,19 +114,16 @@ jobs:
     steps:
       - deploy-lambda:
           stage: "development"
-          aws-account: $AWS_ACCOUNT_DEVELOPMENT
   deploy-to-staging:
     executor: docker-python
     steps:
       - deploy-lambda:
           stage: "staging"
-          aws-account: $AWS_ACCOUNT_STAGING
   deploy-to-production:
     executor: docker-python
     steps:
       - deploy-lambda:
           stage: "production"
-          aws-account: $AWS_ACCOUNT_PRODUCTION
 
 workflows:
   check-and-deploy-development:
