@@ -7,9 +7,9 @@ provider:
   runtime: python3.8
   lambdaHashingVersion: 20201221
   vpc:
-    subnetIds: ${self:custom.vpc.${opt:stage}.subnetIds}
+    subnetIds: ${self:custom.vpc.${sls:stage}.subnetIds}
     securityGroupIds: ${ssm:/housing-tl/production/mtfh-interim-sheets-sync-lambda-sg-id}
-  stage: ${opt:stage}
+  stage: ${sls:stage}
   region: eu-west-2
   usagePlan:
     - secureAccess:
