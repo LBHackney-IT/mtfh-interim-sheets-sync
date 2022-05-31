@@ -361,7 +361,9 @@ def run(event, context):
         else:
             tenure = {}
         transformed_asset = transform_asset(asset, tenure)
-        load_dict_to_dynamodb(transformed_asset, __DYNAMODB_ASSET_ENTITY)
+        asset_in_dynamo = query_dynamodb_by_id('id', transformed_asset['id'], __DYNAMODB_ASSET_ENTITY)
+        if len(asset_in_dynamo) <= 0:
+            load_dict_to_dynamodb(transformed_asset, __DYNAMODB_ASSET_ENTITY)
 
     lambda_client = boto3.client('lambda')
     person_lambda_payload = """{
