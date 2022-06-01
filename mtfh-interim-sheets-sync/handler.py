@@ -126,6 +126,7 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                                 'type': transformed_tenure['tenureType']['description'],
                                 'paymentReference': transformed_tenure['paymentReference']
                             }
+                            logger.info("loading asset at process interim data method " + result_asset[0]['id'])
                             load_dict_to_dynamodb(result_asset[0], __DYNAMODB_ASSET_ENTITY)
                         load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
                         load_dict_to_dynamodb(tenure_migrated_activity(transformed_tenure),
@@ -189,6 +190,7 @@ def update_former_tenure_end_date(former_tenures: [Dict]):
                                                 __DYNAMODB_ASSET_ENTITY)
             if len(result_asset) > 0 and result_tenure[0]['id'] == result_asset[0]['tenure']['id']:
                 result_asset[0]['tenure']['endOfTenureDate'] = result_tenure[0]['endOfTenureDate']
+                logger.info("loading asset at update_former_tenure_end_date method " + result_asset[0]['id'])
                 load_dict_to_dynamodb(result_asset[0], __DYNAMODB_ASSET_ENTITY)
 
 
@@ -222,8 +224,10 @@ def run(event, context):
         else:
             tenure = {}
         transformed_asset = transform_asset(asset, tenure)
+        logger.info("check if asset exists " + transformed_asset['id'])
         asset_in_dynamo = query_dynamodb_by_id('id', transformed_asset['id'], __DYNAMODB_ASSET_ENTITY)
-        if len(asset_in_dynamo) <= 0:
+        if len(asset_in_dynamo) == 0:
+            logger.info("loading asset into DB " + transformed_asset['id'])
             load_dict_to_dynamodb(transformed_asset, __DYNAMODB_ASSET_ENTITY)
         
         assets.append({
@@ -361,8 +365,10 @@ def run(event, context):
         else:
             tenure = {}
         transformed_asset = transform_asset(asset, tenure)
+        logger.info("check if asset exists " + transformed_asset['id'])
         asset_in_dynamo = query_dynamodb_by_id('id', transformed_asset['id'], __DYNAMODB_ASSET_ENTITY)
-        if len(asset_in_dynamo) <= 0:
+        if len(asset_in_dynamo) == 0:
+            logger.info("loading asset into DB " + transformed_asset['id'])
             load_dict_to_dynamodb(transformed_asset, __DYNAMODB_ASSET_ENTITY)
 
     lambda_client = boto3.client('lambda')
