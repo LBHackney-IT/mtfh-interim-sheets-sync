@@ -126,6 +126,7 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                                 'type': transformed_tenure['tenureType']['description'],
                                 'paymentReference': transformed_tenure['paymentReference']
                             }
+                            logger.info("Transformed tenure " + transformed_tenure['id'])
                             logger.info("loading asset at process interim data method " + result_asset[0]['id'])
                             load_dict_to_dynamodb(result_asset[0], __DYNAMODB_ASSET_ENTITY)
                         load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
@@ -226,7 +227,8 @@ def run(event, context):
         transformed_asset = transform_asset(asset, tenure)
         logger.info("check if asset exists " + transformed_asset['id'])
         asset_in_dynamo = query_dynamodb_by_id('id', transformed_asset['id'], __DYNAMODB_ASSET_ENTITY)
-        if len(asset_in_dynamo) == 0:
+        logger.info("query dynamodb results " + len(asset_in_dynamo))
+        if len(asset_in_dynamo) < 0:
             logger.info("loading asset into DB " + transformed_asset['id'])
             load_dict_to_dynamodb(transformed_asset, __DYNAMODB_ASSET_ENTITY)
         
@@ -367,7 +369,8 @@ def run(event, context):
         transformed_asset = transform_asset(asset, tenure)
         logger.info("check if asset exists " + transformed_asset['id'])
         asset_in_dynamo = query_dynamodb_by_id('id', transformed_asset['id'], __DYNAMODB_ASSET_ENTITY)
-        if len(asset_in_dynamo) == 0:
+        logger.info("query dynamodb results " + len(asset_in_dynamo))
+        if len(asset_in_dynamo) < 0:
             logger.info("loading asset into DB " + transformed_asset['id'])
             load_dict_to_dynamodb(transformed_asset, __DYNAMODB_ASSET_ENTITY)
 
