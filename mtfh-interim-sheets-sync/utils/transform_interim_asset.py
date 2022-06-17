@@ -19,7 +19,7 @@ def transform_asset(interim_asset: Dict, asset_tenure: Dict) -> Dict:
     return {
         'id': str(uuid.UUID(hashlib.md5(prop_ref.encode()).hexdigest())),
         'assetId': prop_ref.strip(),
-        'assetType': interim_asset['Type'] or 'Dwelling',
+        'assetType': 'Dwelling',
         'assetLocation': None,
         'assetAddress': {
             'uprn': interim_asset['uprn'],
