@@ -21,9 +21,6 @@ def transform_asset(interim_asset: Dict, asset_tenure: Dict) -> Dict:
     else:
         assetType = 'Dwelling'
 
-    print('Asset Type')
-    print(assetType)
-
     prop_ref = interim_asset['Property Ref'].zfill(8)
     return {
         'id': str(uuid.UUID(hashlib.md5(prop_ref.encode()).hexdigest())),
