@@ -95,11 +95,14 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
         if tenure['UH Ref'].strip() in ('', 'New Assignment', 'New Build', 'New RTB') and tenure['Payment Ref'].strip() not in payment_reference_exclusion_list:
             transformed_people, transformed_phones, transformed_tenure = transform_tenure(tenure,
                                                                                           assets)
+            print('got to 1st if block')
 
             if transformed_tenure != {}:
+                print('got to 2nd if block')
                 result_tenure = query_dynamodb_by_id('id', [transformed_tenure['id']],
                                                      __DYNAMODB_TENURE_ENTITY)
                 if len(result_tenure) == 0:
+                    print('got to 3rd if block')
                     print("tenure does not exist")
                     for person in transformed_people:
                         result_person = query_dynamodb_by_id('id', [person['id']],
