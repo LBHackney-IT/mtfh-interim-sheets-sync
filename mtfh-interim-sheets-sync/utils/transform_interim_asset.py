@@ -15,8 +15,8 @@ def transform_asset(interim_asset: Dict, asset_tenure: Dict) -> Dict:
     :param asset_tenure: The tenure linked to this asset.
     :return: Target asset data
     """
-    assetType = ''
-    if 'Type' in interim_asset.keys()
+    assetType = ""
+    if "Type" in interim_asset:
         assetType = interim_asset['Type'] or 'Dwelling'
     else:
         assetType = 'Dwelling'
