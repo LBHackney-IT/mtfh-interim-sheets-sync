@@ -208,7 +208,11 @@ def run(event, context):
     logger.info("spreadsheet assets")
     assets_range_name = 'New Build properties!A1:N300'
     all_assets = read_google_sheets(__ASSETS_SPREADSHEET_ID, assets_range_name)
+    print('all assets')
+    print(len(all_assets))
     for asset in all_assets:
+        print('untransformed asset')
+        print(asset)
         tenure_res = query_dynamodb_by_id('id', [create_hashed_id(asset['Payment Ref'])], __DYNAMODB_TENURE_ENTITY)
         if len(tenure_res) > 0:
             if 'endOfTenureDate' in tenure_res[0]:
