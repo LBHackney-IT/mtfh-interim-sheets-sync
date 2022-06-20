@@ -128,6 +128,9 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                             }
                             logger.info("Transformed tenure " + transformed_tenure['id'])
                             logger.info("loading asset at process interim data method " + result_asset[0]['id'])
+                            print('tenured asset')
+                            print(result_asset)
+                            print("loading asset at process interim data method " + result_asset[0]['id'])
                             load_dict_to_dynamodb(result_asset[0], __DYNAMODB_ASSET_ENTITY)
                         load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
                         load_dict_to_dynamodb(tenure_migrated_activity(transformed_tenure),
@@ -208,11 +211,7 @@ def run(event, context):
     logger.info("spreadsheet assets")
     assets_range_name = 'New Build properties!A1:N300'
     all_assets = read_google_sheets(__ASSETS_SPREADSHEET_ID, assets_range_name)
-    print('all assets')
-    print(len(all_assets))
     for asset in all_assets:
-        print('untransformed asset')
-        print(asset)
         tenure_res = query_dynamodb_by_id('id', [create_hashed_id(asset['Payment Ref'])], __DYNAMODB_TENURE_ENTITY)
         if len(tenure_res) > 0:
             if 'endOfTenureDate' in tenure_res[0]:
@@ -230,8 +229,6 @@ def run(event, context):
             tenure = {}
         transformed_asset = transform_asset(asset, tenure)
         logger.info("check if asset exists " + transformed_asset['id'])
-        print('transformed asset id')
-        print(transformed_asset['id'])
         asset_in_dynamo = query_dynamodb_by_id('id', transformed_asset['id'], __DYNAMODB_ASSET_ENTITY)
         logger.info("query dynamodb results " + str(len(asset_in_dynamo)))
         if len(asset_in_dynamo) < 0:
