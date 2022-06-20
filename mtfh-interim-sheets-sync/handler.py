@@ -128,7 +128,6 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                             }
                             logger.info("Transformed tenure " + transformed_tenure['id'])
                             logger.info("loading asset at process interim data method " + result_asset[0]['id'])
-                            print("loading asset at process interim data method " + result_asset[0]['id'])
                             load_dict_to_dynamodb(result_asset[0], __DYNAMODB_ASSET_ENTITY)
                         load_dict_to_dynamodb(transformed_tenure, __DYNAMODB_TENURE_ENTITY)
                         load_dict_to_dynamodb(tenure_migrated_activity(transformed_tenure),
@@ -227,6 +226,8 @@ def run(event, context):
             tenure = {}
         transformed_asset = transform_asset(asset, tenure)
         logger.info("check if asset exists " + transformed_asset['id'])
+        print('transformed asset id')
+        print(transformed_asset['id'])
         asset_in_dynamo = query_dynamodb_by_id('id', transformed_asset['id'], __DYNAMODB_ASSET_ENTITY)
         logger.info("query dynamodb results " + str(len(asset_in_dynamo)))
         if len(asset_in_dynamo) < 0:
