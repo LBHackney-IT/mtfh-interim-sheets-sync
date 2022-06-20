@@ -15,14 +15,20 @@ def transform_asset(interim_asset: Dict, asset_tenure: Dict) -> Dict:
     :param asset_tenure: The tenure linked to this asset.
     :return: Target asset data
     """
-    print("check interim asset")
-    print(interim_asset)
+    assetType = ''
+    if 'Type' in interim_asset.keys()
+        assetType = interim_asset['Type'] or 'Dwelling'
+    else:
+        assetType = 'Dwelling'
+
+    print('Asset Type')
+    print(assetType)
 
     prop_ref = interim_asset['Property Ref'].zfill(8)
     return {
         'id': str(uuid.UUID(hashlib.md5(prop_ref.encode()).hexdigest())),
         'assetId': prop_ref.strip(),
-        'assetType': 'Dwelling',
+        'assetType': assetType,
         'assetLocation': None,
         'assetAddress': {
             'uprn': interim_asset['uprn'],
