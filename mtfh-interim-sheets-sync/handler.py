@@ -236,7 +236,7 @@ def run(event, context):
         print(transformed_asset)
         asset_in_dynamo = query_dynamodb_by_id('id', transformed_asset['id'], __DYNAMODB_ASSET_ENTITY)
         logger.info("query dynamodb results " + str(len(asset_in_dynamo)))
-        if len(asset_in_dynamo) < 0:
+        if len(asset_in_dynamo) <= 0:
             logger.info("loading asset into DB " + transformed_asset['id'])
             load_dict_to_dynamodb(transformed_asset, __DYNAMODB_ASSET_ENTITY)
         
