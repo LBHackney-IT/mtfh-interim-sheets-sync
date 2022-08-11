@@ -10,7 +10,7 @@ import boto3
 from utils.data_load_utils import read_db
 from utils.transform_interim_sheets import format_date, create_hashed_id
 from utils.transform_interim_sheets import transform_tenure, merge_person_dynamodb_interim
-from utils.dynamodb_utils import query_dynamodb_by_id, load_dict_to_dynamodb
+from utils.dynamodb_utils import query_dynamodb, load_dict_to_dynamodb,query_dynamodb_by_id
 from utils.google_sheets_utils import read_google_sheets
 from utils.transform_activity import person_migrated_activity, contact_details_migrated_activity, \
                                      tenure_migrated_activity, tenure_people_migrated_activity
@@ -99,13 +99,13 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
 
             if transformed_tenure != {}:
                 print('got to 2nd if block')
-                result_tenure = query_dynamodb_by_id('id', [transformed_tenure['id']],
+                result_tenure = query_dynamodb('id', [transformed_tenure['id']],
                                                      __DYNAMODB_TENURE_ENTITY)
                 if len(result_tenure) == 0:
                     print('got to 3rd if block')
                     print("tenure does not exist")
                     for person in transformed_people:
-                        result_person = query_dynamodb_by_id('id', [person['id']],
+                        result_person = query_dynamodb('id', [person['id']],
                                                              __DYNAMODB_PERSONS_ENTITY)
                         if len(result_person) > 0:
                             load_dict_to_dynamodb(merge_person_dynamodb_interim(
@@ -118,7 +118,7 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                                               __DYNAMODB_ACTIVITY_ENTITY)
                     print("creating tenure")
                     if transformed_tenure != {}:
-                        result_asset = query_dynamodb_by_id('id', [transformed_tenure['tenuredAsset']['id']],
+                        result_asset = query_dynamodb('id', [transformed_tenure['tenuredAsset']['id']],
                                                             __DYNAMODB_ASSET_ENTITY)
                         if len(result_asset) > 0 and (result_asset[0]['tenure'] == {} or not result_asset[0]['tenure'] or
                                                       transformed_tenure['startOfTenureDate'] > result_asset[0]['tenure']['startOfTenureDate']):
@@ -144,7 +144,7 @@ def process_interim_data(all_tenures: [Dict], assets: [Dict]):
                         #                           __DYNAMODB_ACTIVITY_ENTITY)
 
                     for phone in transformed_phones:
-                        result_person = query_dynamodb_by_id('id', [phone['targetId']],
+                        result_person = query_dynamodb('id', [phone['targetId']],
                                                              __DYNAMODB_PERSONS_ENTITY)
                         if len(result_person) > 0:
                             load_dict_to_dynamodb(phone, __DYNAMICS_CONTACTS_ENTITY)
@@ -165,7 +165,7 @@ def update_household_members_tenure_end_date(household_members: [Dict], tenure_i
     :return:
     """
     for person in household_members:
-        result_person = query_dynamodb_by_id('id', [person['id']],
+        result_person = query_dynamodb('id', [person['id']],
                                              __DYNAMODB_PERSONS_ENTITY)
         if len(result_person) > 0:
             for person_tenure in result_person[0]['tenures']:
@@ -186,14 +186,14 @@ def update_former_tenure_end_date(former_tenures: [Dict]):
             tenure_id = create_hashed_id(tenure['UH Ref'])
         else:
             tenure_id = create_hashed_id(tenure['Payment Ref'])
-        result_tenure = query_dynamodb_by_id('id', [tenure_id], __DYNAMODB_TENURE_ENTITY)
+        result_tenure = query_dynamodb('id', [tenure_id], __DYNAMODB_TENURE_ENTITY)
         if len(result_tenure) > 0 and not re.search('[a-zA-Z]', tenure['Void Date']):
             print("tenure end date changed")
             result_tenure[0]['endOfTenureDate'] = format_date(tenure['Void Date'])
             load_dict_to_dynamodb(result_tenure[0], __DYNAMODB_TENURE_ENTITY)
             update_household_members_tenure_end_date(result_tenure[0]['householdMembers'],
                                                      tenure_id, tenure['Void Date'])
-            result_asset = query_dynamodb_by_id('id', [result_tenure[0]['tenuredAsset']['id']],
+            result_asset = query_dynamodb('id', [result_tenure[0]['tenuredAsset']['id']],
                                                 __DYNAMODB_ASSET_ENTITY)
             if len(result_asset) > 0 and result_tenure[0]['id'] == result_asset[0]['tenure']['id']:
                 result_asset[0]['tenure']['endOfTenureDate'] = result_tenure[0]['endOfTenureDate']
@@ -215,7 +215,7 @@ def run(event, context):
     assets_range_name = 'New Build properties!A1:N300'
     all_assets = read_google_sheets(__ASSETS_SPREADSHEET_ID, assets_range_name)
     for asset in all_assets:
-        tenure_res = query_dynamodb_by_id('id', [create_hashed_id(asset['Payment Ref'])], __DYNAMODB_TENURE_ENTITY)
+        tenure_res = query_dynamodb('id', [create_hashed_id(asset['Payment Ref'])], __DYNAMODB_TENURE_ENTITY)
         if len(tenure_res) > 0:
             if 'endOfTenureDate' in tenure_res[0]:
                 tenure_end_date = tenure_res[0]['endOfTenureDate']
@@ -237,7 +237,6 @@ def run(event, context):
         asset_in_dynamo = query_dynamodb_by_id('id', transformed_asset['id'], __DYNAMODB_ASSET_ENTITY)
         logger.info("query dynamodb results " + str(len(asset_in_dynamo)))
         if len(asset_in_dynamo) <= 0:
-            
             logger.info("loading asset into DB " + transformed_asset['id'])
             load_dict_to_dynamodb(transformed_asset, __DYNAMODB_ASSET_ENTITY)
         
@@ -324,7 +323,7 @@ def run(event, context):
     #         tenure_id = create_hashed_id(change['Payment Ref'])
 
     #     if change['Type of change'].strip().lower() in ('new let', 'let & void after cyber attack'):
-    #         tenure = query_dynamodb_by_id('id', [tenure_id], 'TenureInformation')
+    #         tenure = query_dynamodb('id', [tenure_id], 'TenureInformation')
     #         if len(tenure) == 0:
     #             change['Date of Birth'] = ''
     #             change['Home Tel'] = ''
@@ -335,7 +334,7 @@ def run(event, context):
     #                 change['Tenancy Type'] = 'Temp Decant'
     #             process_interim_data([change], assets)
     #     if change['Type of change'].strip().lower() in ('new void', 'rtb', 'let & void after cyber attack'):
-    #         tenure = query_dynamodb_by_id('id', [tenure_id], 'TenureInformation')
+    #         tenure = query_dynamodb('id', [tenure_id], 'TenureInformation')
     #         if len(tenure) == 0:
     #             print("problem: tenure not found for 'new void': " + change['Payment Ref'])
     #         else:
@@ -360,7 +359,7 @@ def run(event, context):
 
     logger.info("reprocess spreadsheet new builds")
     for asset in all_assets:
-        tenure_res = query_dynamodb_by_id('id', [create_hashed_id(asset['Payment Ref'])], __DYNAMODB_TENURE_ENTITY)
+        tenure_res = query_dynamodb('id', [create_hashed_id(asset['Payment Ref'])], __DYNAMODB_TENURE_ENTITY)
         if len(tenure_res) > 0:
             if 'endOfTenureDate' in tenure_res[0]:
                 tenure_end_date = tenure_res[0]['endOfTenureDate']
@@ -377,7 +376,7 @@ def run(event, context):
             tenure = {}
         transformed_asset = transform_asset(asset, tenure)
         logger.info("check if asset exists " + transformed_asset['id'])
-        asset_in_dynamo = query_dynamodb_by_id('id', transformed_asset['id'], __DYNAMODB_ASSET_ENTITY)
+        asset_in_dynamo = query_dynamodb('id', transformed_asset['id'], __DYNAMODB_ASSET_ENTITY)
         logger.info("query dynamodb results " + str(len(asset_in_dynamo)))
         if len(asset_in_dynamo) < 0:
             logger.info("loading asset into DB " + transformed_asset['id'])

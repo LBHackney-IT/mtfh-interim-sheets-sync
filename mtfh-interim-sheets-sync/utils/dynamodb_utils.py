@@ -23,7 +23,7 @@ def load_dict_to_dynamodb(dict_to_write: Dict, table: str, dynamodb=None):
     table.put_item(Item=dict_to_write)
 
 
-def query_dynamodb_by_id(key: str, values: [str], table: str, dynamodb=None) -> [Dict]:
+def query_dynamodb(key: str, values: [str], table: str, dynamodb=None) -> [Dict]:
     """
     This function allows to read data from a DynamoDB table by ID.
     :param key: The dynamoDB table's hash key field name.
@@ -37,9 +37,27 @@ def query_dynamodb_by_id(key: str, values: [str], table: str, dynamodb=None) -> 
 
     table = dynamodb.Table(table)
     results = []
-
     for value in values:
         response = table.query(KeyConditionExpression=Key(key).eq(value))
         if len(response['Items']) > 0:
             results.append(response['Items'][0])
+    return results
+
+def query_dynamodb_by_id(key: str, value: str, table: str, dynamodb=None) -> [Dict]:
+    """
+    This function allows to read data from a DynamoDB table by ID.
+    :param key: The dynamoDB table's hash key field name.
+    :param values: The list of ID that will be used to query dynamoDB.
+    :param table: The dynamoDB table from where to read data.
+    :param dynamodb: DynamoDB client that can be initiated outside of this function.
+    :return: A list of dicts of the data extracted from dynamoDB table.
+    """
+    if not dynamodb:
+        dynamodb = boto3.resource('dynamodb', region_name=__AWS_REGION)
+
+    table = dynamodb.Table(table)
+    results = []
+    response = table.query(KeyConditionExpression=Key(key).eq(value))
+    if len(response['Items']) > 0:
+        results.append(response['Items'][0])
     return results
